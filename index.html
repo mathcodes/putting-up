@@ -61,8 +61,22 @@
   .howto .up { font-weight: 700; color: var(--accent-ink); margin: 0 0 6px; }
   .howto ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
   .howto .tiny { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
-  .howto summary { cursor: pointer; font-weight: 700; color: var(--accent-ink); }
+  details > summary { list-style: none; cursor: pointer; user-select: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  .fold { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+  .fold .chev { display: inline-block; transition: transform .15s; font-size: 12px; }
+  details[open] > .fold .chev { transform: rotate(90deg); }
+  .fold .tog { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+  .fold .tog::after { content: "Show"; }
+  details[open] > .fold .tog::after { content: "Hide"; }
+  .howto summary { color: var(--accent-ink); }
   .howto[open] summary { margin-bottom: 6px; }
+  .howto:not([open]) { padding-bottom: 12px; }
+  .tools { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+  .tools > summary { color: var(--text); font-size: 14px; }
+  .tools .sumline { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .tools[open] > summary { margin-bottom: 8px; }
 
   /* Scoreboard */
   .board { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -342,6 +356,7 @@
       }
     } catch {}
     S = S || fresh();
+    S.ui = Object.assign({ howto: true, tools: true }, S.ui);
     const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
     root.innerHTML = `
@@ -350,8 +365,8 @@
         <span class="fmtpill">${F.label} night</span></div>
       <div class="pastewrap">
         <button class="btn paste" data-act="import">📋 Paste ${F.label} matchup</button>
-        <details class="howto" open>
-          <summary>Where to copy tonight's ${F.label} matchup from</summary>
+        <details class="howto" data-fold="howto">
+          <summary class="fold"><span class="chev">▶</span>Where to copy tonight's ${F.label} matchup from<span class="tog"></span></summary>
           <p class="up">▲ Copy it, then tap the Paste button above.</p>
           <ol>
             <li>Go to <a href="https://league.poolplayers.com/" target="_blank" rel="noopener">league.poolplayers.com</a> and sign in with your APA account.</li>
@@ -362,12 +377,15 @@
           <p class="tiny">It reads both rosters with skill levels and member numbers, season stats, plus date, time, venue and div reps. A single team's roster table works too.</p>
         </details>
       </div>
-      <div class="toolbar">
+      <details class="tools" data-fold="tools">
+        <summary class="fold"><span class="chev">▶</span>⚙ ${F.label} settings <span class="sumline" data-r="sumline"></span><span class="tog"></span></summary>
+        <div class="toolbar">
         <label class="ctl">Cap <input data-f="cap" type="number" min="1" max="50" /></label>
         <label class="ctl">Matches <input data-f="nmatch" type="number" min="1" max="7" /></label>
         <button class="btn small" data-act="swap" title="Swap which team puts up first">⇄ First up</button>
         <button class="btn small danger" data-act="reset" title="Clear tonight's matches, keep rosters">New night</button>
-      </div>
+        </div>
+      </details>
       <div class="metacard" data-r="meta"></div>
       <div class="board" data-r="board"></div>
       <div class="panel">
@@ -433,6 +451,7 @@
     function render() {
       ensureMatches(); fixTarget(0); fixTarget(1);
       q('[data-f="cap"]').value = S.cap; q('[data-f="nmatch"]').value = S.nMatches;
+      q('[data-r="sumline"]').textContent = `Cap ${S.cap} · ${S.nMatches} matches · ${S.teams[S.firstUp].name} up first`;
       const E = [eligibility(0), eligibility(1)];
 
       const M = S.meta;
@@ -619,6 +638,10 @@
       else if (e.dataset.f === 'nmatch') { S.nMatches = parseInt(e.value, 10) || 5; render(); }
     });
     ta.addEventListener('input', preview);
+    root.querySelectorAll('details[data-fold]').forEach(d => {
+      d.open = !!S.ui[d.dataset.fold];
+      d.addEventListener('toggle', () => { S.ui[d.dataset.fold] = d.open; save(); });
+    });
 
     render();
     return {

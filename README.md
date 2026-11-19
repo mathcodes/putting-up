@@ -38,4 +38,6 @@ No build step — it's a single static file.
 open index.html          # or: npx serve .
 ```
 
-Deploy anywhere static (Vercel: `vercel --prod` from this folder).
+Live on GitHub Pages: **https://mathcodes.github.io/putting-up/**
+
+Every push to `main` redeploys automatically via `.github/workflows/pages.yml`. If the first run fails at *configure-pages*, go to **Settings → Pages → Build and deployment → Source: GitHub Actions**, then re-run the workflow.

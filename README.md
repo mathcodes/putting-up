@@ -9,6 +9,8 @@ The page has two independent copies of the tool, each with its own rosters, line
 
 Each section has a ball banner, its own **📋 Paste matchup** button, and instructions for copying the matchup from league.poolplayers.com. If you paste a 9-ball matchup into the 8-ball section (or the other way round), it warns you and offers to load it into the right section.
 
+A **🔗 Links** section at the bottom collects league bylaws, APA/BCA rules, instruction (Dr. Dave) and community resources.
+
 ## What it does
 - Two team rosters (name + skill level), up to 8 players each.
 - 5 match slots (configurable); tap a player to put them up in the highlighted slot.

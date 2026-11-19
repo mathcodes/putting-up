@@ -150,6 +150,18 @@
   .pv td { padding: 2px 4px; border-top: 1px solid var(--line); }
   #dlg { z-index: 20; }
 
+  /* links */
+  .links { max-width: 1100px; margin: 0 auto; padding: 18px 12px 10px; border-top: 6px double var(--line); }
+  .links h2 { margin: 0 0 10px; font-size: 26px; letter-spacing: 1px; }
+  .lgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .lcard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+  .lcard h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .lcard ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .lcard li a { font-weight: 600; text-decoration: none; }
+  .lcard li a:hover { text-decoration: underline; }
+  .lcard li a::after { content: " ↗"; font-size: 11px; opacity: .6; }
+  .lcard li span { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .topnav .jump.plain { padding: 4px 10px; }
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 4px 0 24px; }
 
   @media (max-width: 640px) {
@@ -171,10 +183,12 @@
   <h1>Putting <span>Up</span></h1>
   <a class="jump" href="#eight" data-ball="8">8-Ball</a>
   <a class="jump" href="#nine" data-ball="9">9-Ball</a>
+  <a class="jump plain" href="#links">🔗 Links</a>
 </nav>
 
 <section class="game" id="eight" data-fmt="8"></section>
 <section class="game" id="nine" data-fmt="9"></section>
+<section class="links" id="links"><h2>🔗 Links</h2><div class="lgrid"><div class="lcard"><h3>Our League (APA)</h3><ul><li><a href="https://league.poolplayers.com/" target="_blank" rel="noopener">APA Member Services</a><span>Sign in, team schedules and tonight's matchup to paste above</span></li><li><a href="https://apa-by-laws.s3.amazonaws.com/prod/277_bylaws_2026.pdf" target="_blank" rel="noopener">Local League Bylaws (2026, PDF)</a><span>Local league bylaws for the 2026 season</span></li><li><a href="https://poolplayers.com/" target="_blank" rel="noopener">American Poolplayers Association</a><span>The largest amateur pool league; league info and member resources</span></li><li><a href="https://rules.poolplayers.com/" target="_blank" rel="noopener">APA Pool Rules</a><span>Official manuals, game rules booklets and handicap guidelines</span></li><li><a href="https://rules.poolplayers.com/introduction/" target="_blank" rel="noopener">APA Rules: Introduction</a><span>Start here for how the rules are organized</span></li></ul></div><div class="lcard"><h3>Rules & Governing Bodies</h3><ul><li><a href="https://bca-pool.com/" target="_blank" rel="noopener">Billiard Congress of America (BCA)</a><span>North American governing body: standards, instructor programs, world-standardized rules</span></li><li><a href="https://wpba.com/" target="_blank" rel="noopener">Women's Professional Billiard Association (WPBA)</a><span>Women's pro billiards in the U.S.</span></li><li><a href="https://wpba.com/events-official" target="_blank" rel="noopener">WPBA Events</a><span>Official schedule</span></li><li><a href="https://wpba.com/players" target="_blank" rel="noopener">WPBA Players</a><span>Player rankings and profiles</span></li><li><a href="https://drdavepoolinfo.com/faq/rules/" target="_blank" rel="noopener">Dr. Dave: Pool Rules FAQ</a><span>Rules questions explained</span></li><li><a href="https://drdavepoolinfo.com/faq/foul/scoop/" target="_blank" rel="noopener">Dr. Dave: Is a Scoop Jump a Foul?</a><span>Jump-shot foul explained</span></li></ul></div><div class="lcard"><h3>Instruction, Physics & Drills</h3><ul><li><a href="https://drdavepoolinfo.com/secrets-gems/" target="_blank" rel="noopener">Dr. Dave: Secrets &amp; Gems</a><span>Collected tips and insights</span></li><li><a href="https://drdavepoolinfo.com/dr-dave/" target="_blank" rel="noopener">Dr. Dave Pool Info</a><span>Dr. Dave Alciatore's commercial-free hub on physics and shot mechanics</span></li><li><a href="https://drdavepoolinfo.com/links/instructors/" target="_blank" rel="noopener">Recommended Pool Schools &amp; Instructors</a><span>Directory of instructors and academies</span></li><li><a href="https://www.billiardsdigest.com/links/" target="_blank" rel="noopener">Billiards Digest Links</a><span>Cuemakers, associations and pro tours</span></li></ul></div><div class="lcard"><h3>Forums, Blogs & Video</h3><ul><li><a href="https://forums.azbilliards.com/threads/the-20-best-billiards-and-pool-blogs.51518/" target="_blank" rel="noopener">AzBilliards Forums: 20 Best Pool Blogs</a><span>Community hub for news and tournament talk</span></li><li><a href="https://bullseyebilliards.com/blogs/articles/88076422-resources-for-learning-pool-billiards" target="_blank" rel="noopener">Bullseye Billiards: Resources for Learning</a><span>Roundup of learning resources</span></li><li><a href="https://www.reddit.com/r/billiards/comments/z7zz9c/novice_seeking_resources_books_apps_yt_content/" target="_blank" rel="noopener">r/billiards: Novice Resources Thread</a><span>Books, apps and YouTube picks</span></li><li><span style="margin:0">YouTube channels often recommended there: Accu-Stats, FXBILLIARDS, Niels Feijen, Tor Lowry's Zero-X Billiards</span></li></ul></div></div></section>
 <footer>A player is redded out when their SL plus the cheapest possible picks for the remaining slots would go over the cap.</footer>
 
 <div id="dlg" class="modal" role="dialog" aria-modal="true"><div class="box"><div id="dlgmsg"></div>

@@ -2,6 +2,13 @@
 
 A live, phone-friendly tool for APA team captains to put up players under the **23 rule** — each team's 5 players' skill levels can't total more than 23.
 
+## Layout
+The page has two independent copies of the tool, each with its own rosters, lineup and saved data:
+- **8-Ball** on top (SL 2–7)
+- **9-Ball** below (SL 1–9)
+
+Each section has a ball banner, its own **📋 Paste matchup** button, and instructions for copying the matchup from league.poolplayers.com. If you paste a 9-ball matchup into the 8-ball section (or the other way round), it warns you and offers to load it into the right section.
+
 ## What it does
 - Two team rosters (name + skill level), up to 8 players each.
 - 5 match slots (configurable); tap a player to put them up in the highlighted slot.
@@ -10,7 +17,7 @@ A live, phone-friendly tool for APA team captains to put up players under the **
 - Players who **can't** play are redded out: a player is ineligible if their SL plus the cheapest possible fill for the remaining slots would push the team over the cap (so it warns you *before* you paint yourself into a corner).
 - "Not here" toggle (💤) for absent players; forfeit warning if you run short.
 - Alternating "who puts up first" indicator per match (⇄ to swap).
-- 9-Ball (SL 1–9) or 8-Ball (SL 2–7); cap is editable.
+- Cap is editable per section.
 - "New night" clears matches but keeps rosters. Everything saves in the browser (localStorage).
 
 ## Paste a matchup

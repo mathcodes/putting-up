@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#0d1f17" />
+<meta name="theme-color" content="#0b1712" />
 <title>Putting Up — APA 23 Rule Tracker</title>
 <style>
   :root {
@@ -13,31 +13,62 @@
     --a: #4ea8ff; --b: #ff8a3d;
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 56px; }
   html, body { margin: 0; background: var(--bg); color: var(--text);
     font: 15px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  button, input, select { font: inherit; color: inherit; }
-  header { position: sticky; top: 0; z-index: 5; background: rgba(11,23,18,.96);
-    backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
-    padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
-  h1 { font-size: 20px; margin: 0; letter-spacing: .3px; flex: 1 1 auto; }
-  h1 span { color: var(--felt); }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: #8fd3ff; }
+
+  /* top nav */
+  .topnav { position: sticky; top: 0; z-index: 10; background: rgba(11,23,18,.96); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line); padding: 8px 14px; display: flex; align-items: center; gap: 10px; }
+  .topnav h1 { font-size: 19px; margin: 0; flex: 1; }
+  .topnav h1 span { color: var(--felt); }
+  .jump { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text);
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px 4px 4px; font-weight: 700; font-size: 13px; background: var(--panel2); }
+  .jump svg { width: 22px; height: 22px; }
+
+  /* game sections */
+  .game { max-width: 1100px; margin: 0 auto; padding: 14px 12px 28px; display: grid; gap: 12px; }
+  .game + .game { border-top: 6px double var(--line); margin-top: 8px; }
+  .game[data-fmt="8"] { --accent: #d8dee4; --accent-bg: linear-gradient(135deg, #050505, #1d2320 70%); --accent-ink: #fff; }
+  .game[data-fmt="9"] { --accent: #f5c518; --accent-bg: linear-gradient(135deg, #3a2e05, #1a2a14 70%); --accent-ink: #ffe27a; }
+  .banner { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 18px;
+    background: var(--accent-bg); border: 2px solid var(--accent); }
+  .banner svg { width: 74px; height: 74px; flex: none; filter: drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+  .banner h2 { margin: 0; font-size: 34px; letter-spacing: 2px; color: var(--accent-ink); line-height: 1; }
+  .banner p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  .banner .fmtpill { margin-left: auto; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px;
+    border: 1px solid var(--accent); color: var(--accent-ink); white-space: nowrap; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
   .ctl { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; }
-  .ctl select, .ctl input { background: var(--panel2); border: 1px solid var(--line);
-    border-radius: 8px; padding: 5px 8px; }
+  .ctl select, .ctl input { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; }
   .ctl input { width: 56px; }
-  .btn { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
-    padding: 7px 12px; cursor: pointer; }
+  .btn { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 7px 12px; cursor: pointer; }
   .btn:hover { border-color: var(--felt-dim); }
   .btn.danger { border-color: #5a2427; color: #ffb3b5; }
   .btn.small { padding: 4px 9px; font-size: 13px; border-radius: 8px; }
-  main { max-width: 1100px; margin: 0 auto; padding: 12px; display: grid; gap: 12px; }
+  .btn.paste { font-size: 16px; font-weight: 700; padding: 11px 18px; border: 2px solid var(--accent);
+    background: var(--panel2); color: var(--accent-ink); border-radius: 12px; }
+
+  /* how-to box */
+  .pastewrap { display: grid; gap: 0; justify-items: start; }
+  .howto { position: relative; margin-top: 12px; border: 2px dashed var(--accent); border-radius: 14px;
+    padding: 12px 14px 10px; background: var(--panel); width: 100%; font-size: 13.5px; }
+  .howto::before { content: ""; position: absolute; top: -12px; left: 34px; border: 10px solid transparent;
+    border-top: 0; border-bottom: 12px solid var(--accent); }
+  .howto .up { font-weight: 700; color: var(--accent-ink); margin: 0 0 6px; }
+  .howto ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+  .howto .tiny { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+  .howto summary { cursor: pointer; font-weight: 700; color: var(--accent-ink); }
+  .howto[open] summary { margin-bottom: 6px; }
 
   /* Scoreboard */
   .board { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tcard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
-    padding: 10px 12px; border-top: 4px solid var(--c); }
-  .tcard input.tname { background: transparent; border: 0; font-weight: 700; font-size: 16px;
-    width: 100%; padding: 0; color: var(--c); }
+  .tcard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; border-top: 4px solid var(--c); }
+  .tcard input.tname { background: transparent; border: 0; font-weight: 700; font-size: 16px; width: 100%; padding: 0; color: var(--c); }
+  .tsub { font-size: 12px; color: var(--muted); }
   .sum { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
   .sum b { font-size: 34px; font-variant-numeric: tabular-nums; line-height: 1; }
   .sum small { color: var(--muted); }
@@ -46,23 +77,20 @@
   .bar.warn > i { background: var(--warn); } .bar.bad > i { background: var(--bad); }
   .stats { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted); }
   .stats b { color: var(--text); }
-  .alert { margin-top: 6px; font-size: 13px; padding: 5px 8px; border-radius: 8px;
-    background: var(--bad-bg); color: #ffb3b5; }
+  .alert { margin-top: 6px; font-size: 13px; padding: 5px 8px; border-radius: 8px; background: var(--bad-bg); color: #ffb3b5; }
 
   /* Matches */
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
-  .panel h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
-    margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .match { display: grid; grid-template-columns: 54px 1fr 26px 1fr; gap: 6px; align-items: center;
-    padding: 5px 0; border-top: 1px solid var(--line); }
+  .panel h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
+    margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .match { display: grid; grid-template-columns: 54px 1fr 26px 1fr; gap: 6px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); }
   .match:first-of-type { border-top: 0; }
   .mnum { font-size: 12px; color: var(--muted); line-height: 1.1; }
   .mnum b { display: block; font-size: 15px; color: var(--text); }
   .mnum em { font-style: normal; font-size: 11px; }
   .vs { text-align: center; color: var(--muted); font-size: 12px; }
-  .slot { min-height: 42px; border: 1px dashed var(--line); border-radius: 10px; padding: 6px 8px;
-    display: flex; align-items: center; justify-content: space-between; gap: 6px; cursor: pointer;
-    background: transparent; text-align: left; width: 100%; }
+  .slot { min-height: 42px; border: 1px dashed var(--line); border-radius: 10px; padding: 6px 8px; display: flex;
+    align-items: center; justify-content: space-between; gap: 6px; cursor: pointer; background: transparent; text-align: left; width: 100%; }
   .slot.filled { border-style: solid; background: var(--panel2); border-color: var(--c); }
   .slot.target { border: 2px solid var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
   .slot .ph { color: var(--muted); font-size: 13px; }
@@ -74,10 +102,12 @@
   .rosters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .roster { border-top: 4px solid var(--c); }
   .plist { display: grid; gap: 6px; }
-  .p { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
-    background: var(--panel2); border: 1px solid var(--line); cursor: pointer; width: 100%; text-align: left; }
+  .prow { display: flex; gap: 4px; align-items: center; }
+  .p { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px; background: var(--panel2);
+    border: 1px solid var(--line); cursor: pointer; width: 100%; text-align: left; min-width: 0; }
   .p:hover:not(:disabled) { border-color: var(--c); }
   .p .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .p .nm small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
   .p .tag { font-size: 11px; padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
   .p.ok .tag { background: #173d2b; color: #8fe3b6; }
   .p.red { background: var(--bad-bg); border-color: #6b2226; cursor: not-allowed; }
@@ -85,8 +115,7 @@
   .p.red .sl { background: var(--bad); }
   .p.red .tag { background: var(--bad); color: #fff; }
   .p.played { opacity: .45; cursor: default; background: var(--played); }
-  .p.played .tag { background: #26332e; color: var(--muted); }
-  .p.out .tag { background: #26332e; color: var(--muted); }
+  .p.played .tag, .p.out .tag { background: #26332e; color: var(--muted); }
   .p.out { opacity: .55; }
   .del, .sit { background: none; border: 0; color: var(--muted); cursor: pointer; padding: 2px 3px; font-size: 13px; flex: none; opacity: .7; }
   .del:hover, .sit:hover { opacity: 1; }
@@ -94,29 +123,33 @@
   .addrow input { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; min-width: 0; }
   .addrow input.n { flex: 1; } .addrow input.s { width: 58px; }
   .hint { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
-  .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); text-transform: none; letter-spacing: 0; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 15; padding: 16px; }
-  .modal.on { display: grid; }
-  .box.wide { max-width: 620px; max-height: 92vh; overflow: auto; }
-  .box h3 { margin: 0 0 6px; }
-  #impText { width: 100%; min-height: 170px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
-    padding: 8px; font: 12px/1.35 ui-monospace, Menlo, Consolas, monospace; resize: vertical; }
-  .pv { margin-top: 8px; font-size: 13px; display: grid; gap: 6px; }
-  .pv .ok { color: #8fe3b6; } .pv .err { color: #ffb3b5; }
-  .pv table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .pv td { padding: 2px 4px; border-top: 1px solid var(--line); }
+
   .metacard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px;
     display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; font-size: 13px; color: var(--muted); }
   .metacard .when { font-size: 16px; font-weight: 700; color: var(--text); }
   .metacard b { color: var(--text); font-weight: 600; }
   .metacard .x { margin-left: auto; background: none; border: 0; color: var(--muted); cursor: pointer; }
-  .tsub { font-size: 12px; color: var(--muted); }
-  .p .nm small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
-  #dlg { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 20; padding: 16px; }
-  #dlg.on { display: grid; }
-  #dlg .box { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; max-width: 340px; width: 100%; }
-  #dlg .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  .metacard:empty { display: none; }
+
+  /* modals */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 15; padding: 16px; }
+  .modal.on { display: grid; }
+  .box { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; max-width: 340px; width: 100%; }
+  .box.wide { max-width: 620px; max-height: 92vh; overflow: auto; border: 2px solid var(--accent, var(--line)); }
+  .box h4 { margin: 0 0 6px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+  .box h4 svg { width: 26px; height: 26px; }
+  .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+  .impText { width: 100%; min-height: 170px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px; font: 12px/1.35 ui-monospace, Menlo, Consolas, monospace; resize: vertical; }
+  .pv { margin-top: 8px; font-size: 13px; display: grid; gap: 6px; }
+  .pv .ok { color: #8fe3b6; } .pv .err { color: #ffb3b5; }
+  .pv .mismatch { border: 1px solid var(--warn); background: #3a2e0a; color: #ffe08a; padding: 8px; border-radius: 8px; }
+  .pv table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .pv td { padding: 2px 4px; border-top: 1px solid var(--line); }
+  #dlg { z-index: 20; }
+
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 4px 0 24px; }
 
   @media (max-width: 640px) {
@@ -127,75 +160,66 @@
     .p .tag { font-size: 10px; padding: 2px 4px; }
     .rosters, .board { gap: 8px; }
     .panel, .tcard { padding: 8px; }
+    .banner svg { width: 56px; height: 56px; }
+    .banner h2 { font-size: 26px; }
+    .banner .fmtpill { display: none; }
   }
 </style>
 </head>
 <body>
-<header>
+<nav class="topnav">
   <h1>Putting <span>Up</span></h1>
-  <label class="ctl">Format
-    <select id="fmt">
-      <option value="9">9-Ball (SL 1–9)</option>
-      <option value="8">8-Ball (SL 2–7)</option>
-    </select>
-  </label>
-  <label class="ctl">Cap <input id="cap" type="number" min="1" max="50" /></label>
-  <label class="ctl">Matches <input id="nmatch" type="number" min="1" max="7" /></label>
-  <button class="btn small" id="importBtn" title="Paste an APA matchup page">📋 Paste matchup</button>
-  <button class="btn small" id="swap" title="Swap which team puts up first">⇄ First up</button>
-  <button class="btn small danger" id="reset" title="Clear tonight's matches, keep rosters">New night</button>
-</header>
+  <a class="jump" href="#eight" data-ball="8">8-Ball</a>
+  <a class="jump" href="#nine" data-ball="9">9-Ball</a>
+</nav>
 
-<main>
-  <section id="meta"></section>
-  <section class="board" id="board"></section>
-  <section class="panel">
-    <h2>Lineup <span class="legend">
-      <span><i style="background:#173d2b"></i>can play</span>
-      <span><i style="background:var(--bad)"></i>would break cap</span>
-      <span><i style="background:var(--played)"></i>already played</span>
-    </span></h2>
-    <div id="matches"></div>
-    <p class="hint">Tap a player below to put them up in the highlighted slot. Tap a slot to target it; tap ✕ to clear.</p>
-  </section>
-  <section class="rosters" id="rosters"></section>
-  <footer>Ineligible = their SL plus the cheapest possible fill for the remaining slots would exceed the cap.</footer>
-</main>
-<div id="imp" class="modal" role="dialog" aria-modal="true"><div class="box wide">
-  <h3>Paste matchup</h3>
-  <p class="hint" style="margin-top:0">On poolplayers.com open the matchup, select everything from the date down through the last away player, copy, and paste it here. A single team's roster table works too.</p>
-  <textarea id="impText" placeholder="Matchup:&#10;Nov&#10;18&#10;Up To No Good (93704)&#10;…"></textarea>
-  <div id="impPreview"></div>
-  <div class="row" style="flex-wrap:wrap">
-    <label class="ctl" id="impOneWrap" style="margin-right:auto;display:none">Load single team into
-      <select id="impOne"><option value="0">Home</option><option value="1">Away</option></select></label>
-    <button class="btn small" id="impCancel">Cancel</button>
-    <button class="btn small" id="impLoad" disabled>Load</button>
-  </div>
-</div></div>
-<div id="dlg" role="dialog" aria-modal="true"><div class="box"><div id="dlgmsg"></div>
+<section class="game" id="eight" data-fmt="8"></section>
+<section class="game" id="nine" data-fmt="9"></section>
+<footer>A player is redded out when their SL plus the cheapest possible picks for the remaining slots would go over the cap.</footer>
+
+<div id="dlg" class="modal" role="dialog" aria-modal="true"><div class="box"><div id="dlgmsg"></div>
   <div class="row"><button class="btn small" id="dlgno">Cancel</button><button class="btn small danger" id="dlgyes">OK</button></div></div></div>
 
 <script>
 (() => {
-  const KEY = 'putting-up:v1';
-  const FMT = { '9': { min: 1, max: 9 }, '8': { min: 2, max: 7 } };
+  // ---------- shared helpers ----------
+  const FMT = {
+    '8': { min: 2, max: 7, label: '8-Ball', id: 'eight' },
+    '9': { min: 1, max: 9, label: '9-Ball', id: 'nine' },
+  };
   const uid = () => Math.random().toString(36).slice(2, 9);
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const $ = id => document.getElementById(id);
 
-  const fresh = () => ({
-    format: '9', cap: 23, nMatches: 5, firstUp: 0,
-    teams: [
-      { name: 'Home', players: [] },
-      { name: 'Away', players: [] },
-    ],
-    matches: Array.from({ length: 5 }, () => [null, null]),
-    target: [0, 0],
-  });
+  // Pool ball SVGs (drawn inline, no external images)
+  let ballSeq = 0;
+  function ballSVG(n) {
+    const k = 'b' + (++ballSeq);
+    const shine = `<radialGradient id="${k}s" cx="35%" cy="30%" r="70%">
+        <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/>
+        <stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient>`;
+    const body = n === 8
+      ? `<circle cx="50" cy="50" r="46" fill="#0a0a0a"/>`
+      : `<clipPath id="${k}c"><circle cx="50" cy="50" r="46"/></clipPath>
+         <circle cx="50" cy="50" r="46" fill="#f7f4ea"/>
+         <rect x="0" y="27" width="100" height="46" fill="#f5c518" clip-path="url(#${k}c)"/>`;
+    return `<svg viewBox="0 0 100 100" role="img" aria-label="${n}-ball">
+      <defs>${shine}</defs>${body}
+      <circle cx="50" cy="50" r="19" fill="#fff"/>
+      <text x="50" y="51" text-anchor="middle" dominant-baseline="central" font-family="Arial Black, Arial, sans-serif"
+        font-weight="900" font-size="25" fill="#111">${n}</text>
+      <circle cx="50" cy="50" r="46" fill="url(#${k}s)"/></svg>`;
+  }
+  document.querySelectorAll('.jump').forEach(a => a.insertAdjacentHTML('afterbegin', ballSVG(+a.dataset.ball)));
 
-  let S;
-  try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+  // in-page confirm (window.confirm is blocked in sandboxed frames)
+  function ask(msg, yes = 'OK') {
+    return new Promise(res => {
+      const d = $('dlg'); $('dlgmsg').textContent = msg; $('dlgyes').textContent = yes; d.classList.add('on');
+      const done = v => { d.classList.remove('on'); $('dlgyes').onclick = $('dlgno').onclick = null; res(v); };
+      $('dlgyes').onclick = () => done(true); $('dlgno').onclick = () => done(false);
+    });
+  }
 
   // ---------- APA matchup paste parser ----------
   const MONTHS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
@@ -203,7 +227,6 @@
   const TEAM_RE = /^(.+?)\s*\((\d+)\)\s*$/;
 
   function parseRoster(lines) {
-    // team name: first line before the "Player Name" header that isn't noise
     const hdr = lines.findIndex(l => /player name/i.test(l) && /skill/i.test(l));
     let name = null, num = null;
     for (let i = (hdr === -1 ? lines.length : hdr) - 1; i >= 0; i--) {
@@ -236,8 +259,8 @@
           const day = m[2] || ((lines[i + 1] || '').match(/^\d{1,2}$/) || [])[0];
           if (day) {
             let y = m[3] ? +m[3] : today.getFullYear();
-            if (!m[3]) { // pick the year that puts the date closest to today
-              const d0 = new Date(y, mi, +day), diff = (d0 - today) / 864e5;
+            if (!m[3]) {
+              const diff = (new Date(y, mi, +day) - today) / 864e5;
               if (diff > 183) y--; else if (diff < -183) y++;
             }
             meta.date = `${y}-${String(mi + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -249,8 +272,9 @@
       if ((m = l.match(/^Div(?:ision)? Rep:\s*(.+)$/i))) meta.divReps.push(m[1].trim());
       if (/match not scored/i.test(l)) meta.status = 'Not scored';
       if (/scoresheet is now available/i.test(l)) meta.scoresheet = true;
+      if (!meta.format && /\b9[- ]?ball\b/i.test(l)) meta.format = '9';
+      if (!meta.format && /\b8[- ]?ball\b/i.test(l)) meta.format = '8';
     }
-    // team numbers from the matchup header (the "(93704)" lines before Home Team)
     const hi = lines.findIndex(l => /^home team$/i.test(l));
     const ai = lines.findIndex(l => /^away team$/i.test(l));
     const headEnd = [hi, ai].filter(x => x >= 0).sort((a, b) => a - b)[0] ?? lines.length;
@@ -270,120 +294,119 @@
       const hit = teamNums.find(m => m[1].toLowerCase() === (t.name || '').toLowerCase());
       t.teamNo = hit ? hit[2] : null;
     }
-    // detect format: 9-ball PPM is out of 20, 8-ball out of 3; SL 1/8/9 only exist in 9-ball
+    // format: explicit text wins; SL 1/8/9 only exist in 9-ball; 9-ball PPM is out of 20, 8-ball out of 3
     const all = teams.flatMap(t => t.players);
     const ppms = all.map(p => p.ppm).filter(x => x != null);
-    let format = null;
-    if (all.some(p => p.sl === 1 || p.sl >= 8)) format = '9';
-    else if (ppms.length) format = ppms.reduce((a, b) => a + b, 0) / ppms.length > 3.5 ? '9' : '8';
+    let format = meta.format || null;
+    if (!format && all.some(p => p.sl === 1 || p.sl >= 8)) format = '9';
+    else if (!format && ppms.length) format = ppms.reduce((a, b) => a + b, 0) / ppms.length > 3.5 ? '9' : '8';
+    delete meta.format;
     return { meta, teams, format };
   }
 
-  // ---------- core rule logic ----------
-  const playerById = (t, id) => S.teams[t].players.find(p => p.id === id);
-  const pickedIds = t => S.matches.map(m => m[t]).filter(Boolean);
-  const teamSum = t => pickedIds(t).reduce((a, id) => a + (playerById(t, id)?.sl || 0), 0);
-  const slotsLeft = t => S.matches.filter(m => !m[t]).length;
-  const available = t => {
-    const used = new Set(pickedIds(t));
-    return S.teams[t].players.filter(p => !used.has(p.id) && !p.out);
-  };
-  // smallest sum of k skill levels from list (missing players = forfeits, count 0)
-  const cheapest = (list, k) => list.map(p => p.sl).sort((a, b) => a - b).slice(0, Math.max(0, k)).reduce((a, b) => a + b, 0);
-
-  function eligibility(t) {
-    const sum = teamSum(t), left = slotsLeft(t), avail = available(t);
-    const res = new Map();
-    for (const p of avail) {
-      const others = avail.filter(o => o !== p);
-      const floor = sum + p.sl + cheapest(others, left - 1);
-      res.set(p.id, { ok: left > 0 && floor <= S.cap, floor });
-    }
-    // highest SL that could still go in the next slot
-    const okSLs = avail.filter(p => res.get(p.id).ok).map(p => p.sl);
-    const maxNext = okSLs.length ? Math.max(...okSLs) : null;
-    const stuck = left > 0 && avail.length > 0 && okSLs.length === 0;
-    return { sum, left, res, maxNext, stuck, roomLeft: S.cap - sum };
-  }
-
-  function ensureMatches() {
-    const n = Math.min(7, Math.max(1, S.nMatches | 0 || 5));
-    S.nMatches = n;
-    while (S.matches.length < n) S.matches.push([null, null]);
-    if (S.matches.length > n) S.matches.length = n;
-  }
-  function fixTarget(t) {
-    const cur = S.target[t];
-    if (cur == null || cur >= S.matches.length || S.matches[cur][t]) {
-      const i = S.matches.findIndex(m => !m[t]);
-      S.target[t] = i === -1 ? null : i;
-    }
-  }
-
-  // ---------- render ----------
+  // ---------- one app instance per game ----------
+  const apps = {};
   const colors = ['var(--a)', 'var(--b)'];
-  const $ = id => document.getElementById(id);
 
-  function render() {
-    ensureMatches(); fixTarget(0); fixTarget(1);
-    $('fmt').value = S.format; $('cap').value = S.cap; $('nmatch').value = S.nMatches;
-    const E = [eligibility(0), eligibility(1)];
+  function createApp(root) {
+    const fmt = root.dataset.fmt, F = FMT[fmt], other = fmt === '8' ? '9' : '8';
+    const KEY = `putting-up:v2:${fmt}`;
+    const q = sel => root.querySelector(sel);
 
-    // meta
-    const M = S.meta;
-    if (M && (M.date || M.location || M.time)) {
-      const d = M.date ? new Date(M.date + 'T12:00:00') : null;
-      const when = d ? d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '';
-      $('meta').innerHTML = `<div class="metacard">
-        <span class="when">${esc(when)}${M.time ? ' · ' + esc(M.time) : ''}</span>
-        ${M.location ? `<span>📍 <b>${esc(M.location)}</b></span>` : ''}
-        <span><b style="color:var(--a)">${esc(S.teams[0].name)}</b> vs <b style="color:var(--b)">${esc(S.teams[1].name)}</b></span>
-        ${M.divReps?.length ? `<span>Div rep: ${M.divReps.map(esc).join(', ')}</span>` : ''}
-        ${M.status ? `<span>${esc(M.status)}</span>` : ''}
-        ${M.scoresheet ? `<span>Scoresheet available</span>` : ''}
-        <button class="x" id="metaX" title="Hide match info">✕</button></div>`;
-    } else $('meta').innerHTML = '';
+    const fresh = () => ({
+      cap: 23, nMatches: 5, firstUp: 0,
+      teams: [{ name: 'Home', players: [] }, { name: 'Away', players: [] }],
+      matches: Array.from({ length: 5 }, () => [null, null]),
+      target: [0, 0], meta: null,
+    });
+    let S;
+    try {
+      S = JSON.parse(localStorage.getItem(KEY));
+      if (!S) { // migrate the single-format v1 save into the matching section
+        const v1 = JSON.parse(localStorage.getItem('putting-up:v1'));
+        if (v1 && (v1.format || '9') === fmt) { delete v1.format; S = v1; }
+      }
+    } catch {}
+    S = S || fresh();
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
-    // board
-    $('board').innerHTML = [0, 1].map(t => {
-      const e = E[t], pct = Math.min(100, (e.sum / S.cap) * 100);
-      const cls = e.sum > S.cap ? 'bad' : e.roomLeft <= 4 + e.left ? 'warn' : '';
-      return `<div class="tcard" style="--c:${colors[t]}">
-        <input class="tname" data-t="${t}" value="${esc(S.teams[t].name)}" aria-label="Team name" />
-        <div class="tsub">${t === 0 ? 'Home' : 'Away'}${S.teams[t].teamNo ? ' · #' + esc(S.teams[t].teamNo) : ''}${S.teams[t].divNo ? ' · Team ' + esc(S.teams[t].divNo) : ''}</div>
-        <div class="sum"><b>${e.sum}</b><small>/ ${S.cap}</small></div>
-        <div class="bar ${cls}"><i style="width:${pct}%"></i></div>
-        <div class="stats">
-          <span>Room <b>${e.roomLeft}</b></span>
-          <span>Slots left <b>${e.left}</b></span>
-          <span>Max next SL <b>${e.left ? (e.maxNext ?? '—') : '—'}</b></span>
+    root.innerHTML = `
+      <div class="banner">${ballSVG(+fmt)}
+        <div><h2>${F.label.toUpperCase()}</h2><p>Skill levels ${F.min}–${F.max} · 5 players · total can't go over the cap</p></div>
+        <span class="fmtpill">${F.label} night</span></div>
+      <div class="pastewrap">
+        <button class="btn paste" data-act="import">📋 Paste ${F.label} matchup</button>
+        <details class="howto" open>
+          <summary>Where to copy tonight's ${F.label} matchup from</summary>
+          <p class="up">▲ Copy it, then tap the Paste button above.</p>
+          <ol>
+            <li>Go to <a href="https://league.poolplayers.com/" target="_blank" rel="noopener">league.poolplayers.com</a> and sign in with your APA account.</li>
+            <li>Choose your <b>${F.label}</b> team, then open tonight's match from the team's schedule.</li>
+            <li>On the matchup page (it starts with <b>Matchup:</b>, the date and both team names), select from the date down through the last <b>Away Team</b> player and copy. Select All also works.</li>
+            <li>Tap <b>📋 Paste ${F.label} matchup</b>, paste, check the preview, then tap <b>Load</b>.</li>
+          </ol>
+          <p class="tiny">It reads both rosters with skill levels and member numbers, season stats, plus date, time, venue and div reps. A single team's roster table works too.</p>
+        </details>
+      </div>
+      <div class="toolbar">
+        <label class="ctl">Cap <input data-f="cap" type="number" min="1" max="50" /></label>
+        <label class="ctl">Matches <input data-f="nmatch" type="number" min="1" max="7" /></label>
+        <button class="btn small" data-act="swap" title="Swap which team puts up first">⇄ First up</button>
+        <button class="btn small danger" data-act="reset" title="Clear tonight's matches, keep rosters">New night</button>
+      </div>
+      <div class="metacard" data-r="meta"></div>
+      <div class="board" data-r="board"></div>
+      <div class="panel">
+        <h3>${F.label} lineup <span class="legend">
+          <span><i style="background:#173d2b"></i>can play</span>
+          <span><i style="background:var(--bad)"></i>would break cap</span>
+          <span><i style="background:var(--played)"></i>already played</span></span></h3>
+        <div data-r="matches"></div>
+        <p class="hint">Tap a player below to put them up in the highlighted slot. Tap a slot to target it; tap ✕ to clear.</p>
+      </div>
+      <div class="rosters" data-r="rosters"></div>
+      <div class="modal" data-r="imp" role="dialog" aria-modal="true"><div class="box wide">
+        <h4>${ballSVG(+fmt)} Paste ${F.label} matchup</h4>
+        <p class="hint" style="margin-top:0">Paste the matchup page from league.poolplayers.com.</p>
+        <textarea class="impText" placeholder="Matchup:&#10;Nov&#10;18&#10;Up To No Good (93704)&#10;…"></textarea>
+        <div data-r="pv"></div>
+        <div class="row">
+          <label class="ctl" data-r="oneWrap" style="margin-right:auto;display:none">Load single team into
+            <select data-r="one"><option value="0">Home</option><option value="1">Away</option></select></label>
+          <button class="btn small" data-act="impCancel">Cancel</button>
+          <button class="btn small" data-act="impLoad" disabled>Load into ${F.label}</button>
         </div>
-        ${e.sum > S.cap ? `<div class="alert">Over the cap by ${e.sum - S.cap}!</div>` : ''}
-        ${e.stuck ? `<div class="alert">No available player fits — lineup can't be completed under ${S.cap}.</div>` : ''}
-        ${e.left && available(t).length < e.left ? `<div class="alert">Only ${available(t).length} player(s) left for ${e.left} slot(s) — forfeit risk.</div>` : ''}
-      </div>`;
-    }).join('');
+      </div></div>`;
 
-    // matches
-    $('matches').innerHTML = S.matches.map((m, i) => {
-      const first = (S.firstUp + i) % 2;
-      const cell = t => {
-        const p = m[t] && playerById(t, m[t]);
-        const tgt = S.target[t] === i ? 'target' : '';
-        return p
-          ? `<div class="slot filled ${tgt}" style="--c:${colors[t]}" data-slot="${t}:${i}">
-               <span class="sl">${p.sl}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</span>
-               <span class="x" data-clear="${t}:${i}" title="Clear">✕</span></div>`
-          : `<button class="slot ${tgt}" style="--c:${colors[t]}" data-slot="${t}:${i}"><span class="ph">${tgt ? '▶ next pick' : 'open'}</span></button>`;
-      };
-      return `<div class="match">
-        <div class="mnum"><b>#${i + 1}</b><em style="color:${colors[first]}" title="${esc(S.teams[first].name)} puts up first">${first ? 'Away' : 'Home'} up</em></div>
-        ${cell(0)}<div class="vs">vs</div>${cell(1)}
-      </div>`;
-    }).join('');
+    // ----- rule logic -----
+    const playerById = (t, id) => S.teams[t].players.find(p => p.id === id);
+    const pickedIds = t => S.matches.map(m => m[t]).filter(Boolean);
+    const teamSum = t => pickedIds(t).reduce((a, id) => a + (playerById(t, id)?.sl || 0), 0);
+    const slotsLeft = t => S.matches.filter(m => !m[t]).length;
+    const available = t => { const used = new Set(pickedIds(t)); return S.teams[t].players.filter(p => !used.has(p.id) && !p.out); };
+    const cheapest = (list, k) => list.map(p => p.sl).sort((a, b) => a - b).slice(0, Math.max(0, k)).reduce((a, b) => a + b, 0);
 
-    // rosters
-    const f = FMT[S.format];
+    function eligibility(t) {
+      const sum = teamSum(t), left = slotsLeft(t), avail = available(t), res = new Map();
+      for (const p of avail) {
+        const floor = sum + p.sl + cheapest(avail.filter(o => o !== p), left - 1);
+        res.set(p.id, { ok: left > 0 && floor <= S.cap, floor });
+      }
+      const okSLs = avail.filter(p => res.get(p.id).ok).map(p => p.sl);
+      return { sum, left, res, maxNext: okSLs.length ? Math.max(...okSLs) : null,
+        stuck: left > 0 && avail.length > 0 && okSLs.length === 0, roomLeft: S.cap - sum };
+    }
+    function ensureMatches() {
+      S.nMatches = Math.min(7, Math.max(1, S.nMatches | 0 || 5));
+      while (S.matches.length < S.nMatches) S.matches.push([null, null]);
+      if (S.matches.length > S.nMatches) S.matches.length = S.nMatches;
+    }
+    function fixTarget(t) {
+      const cur = S.target[t];
+      if (cur == null || cur >= S.matches.length || S.matches[cur][t]) {
+        const i = S.matches.findIndex(m => !m[t]); S.target[t] = i === -1 ? null : i;
+      }
+    }
     const statLine = p => {
       const bits = [];
       if (p.played != null) bits.push(`${p.won}/${p.played}`);
@@ -391,159 +414,207 @@
       if (p.ppm != null) bits.push(`PPM ${p.ppm}`);
       return bits.length ? `<small>${esc(bits.join(' · '))}</small>` : '';
     };
-    $('rosters').innerHTML = [0, 1].map(t => {
-      const e = E[t], used = new Set(pickedIds(t));
-      const players = [...S.teams[t].players].sort((a, b) => b.sl - a.sl || a.name.localeCompare(b.name));
-      const rows = players.map(p => {
-        if (used.has(p.id)) {
-          const mi = S.matches.findIndex(m => m[t] === p.id) + 1;
-          return `<div class="p played"><span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}${statLine(p)}</span><span class="tag">played #${mi}</span></div>`;
-        }
-        if (p.out) {
-          return `<div class="p out"><span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}${statLine(p)}</span><span class="tag">not here</span>
-            <button class="sit" data-sit="${t}:${p.id}" title="Mark present">↩</button>
-            <button class="del" data-del="${t}:${p.id}" title="Remove">🗑</button></div>`;
-        }
-        const r = e.res.get(p.id);
-        const ok = r && r.ok;
-        const tag = !e.left ? 'done' : ok ? 'can play' : `too high (${r.floor}>${S.cap})`;
-        return `<div style="display:flex;gap:4px;align-items:center">
-          <button class="p ${ok ? 'ok' : 'red'}" style="--c:${colors[t]}" data-pick="${t}:${p.id}" ${ok ? '' : 'disabled'}
-            title="${ok ? 'Put up' : `Min possible total would be ${r.floor}`}">
-            <span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}${statLine(p)}</span><span class="tag">${tag}</span>
-          </button>
-          <button class="sit" data-sit="${t}:${p.id}" title="Mark not here tonight">💤</button>
-          <button class="del" data-del="${t}:${p.id}" title="Remove from roster">🗑</button>
+
+    // ----- render -----
+    function render() {
+      ensureMatches(); fixTarget(0); fixTarget(1);
+      q('[data-f="cap"]').value = S.cap; q('[data-f="nmatch"]').value = S.nMatches;
+      const E = [eligibility(0), eligibility(1)];
+
+      const M = S.meta;
+      if (M && (M.date || M.location || M.time)) {
+        const d = M.date ? new Date(M.date + 'T12:00:00') : null;
+        const when = d ? d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+        q('[data-r="meta"]').innerHTML = `
+          <span class="when">${esc(F.label)} · ${esc(when)}${M.time ? ' · ' + esc(M.time) : ''}</span>
+          ${M.location ? `<span>📍 <b>${esc(M.location)}</b></span>` : ''}
+          <span><b style="color:var(--a)">${esc(S.teams[0].name)}</b> vs <b style="color:var(--b)">${esc(S.teams[1].name)}</b></span>
+          ${M.divReps?.length ? `<span>Div rep: ${M.divReps.map(esc).join(', ')}</span>` : ''}
+          ${M.status ? `<span>${esc(M.status)}</span>` : ''}
+          ${M.scoresheet ? `<span>Scoresheet available</span>` : ''}
+          <button class="x" data-act="metaX" title="Hide match info">✕</button>`;
+      } else q('[data-r="meta"]').innerHTML = '';
+
+      q('[data-r="board"]').innerHTML = [0, 1].map(t => {
+        const e = E[t], pct = Math.min(100, (e.sum / S.cap) * 100);
+        const cls = e.sum > S.cap ? 'bad' : e.roomLeft <= 4 + e.left ? 'warn' : '';
+        const tm = S.teams[t];
+        return `<div class="tcard" style="--c:${colors[t]}">
+          <input class="tname" data-t="${t}" value="${esc(tm.name)}" aria-label="Team name" />
+          <div class="tsub">${t === 0 ? 'Home' : 'Away'}${tm.teamNo ? ' · #' + esc(tm.teamNo) : ''}${tm.divNo ? ' · Team ' + esc(tm.divNo) : ''}</div>
+          <div class="sum"><b>${e.sum}</b><small>/ ${S.cap}</small></div>
+          <div class="bar ${cls}"><i style="width:${pct}%"></i></div>
+          <div class="stats"><span>Room <b>${e.roomLeft}</b></span><span>Slots left <b>${e.left}</b></span>
+            <span>Max next SL <b>${e.left ? (e.maxNext ?? '—') : '—'}</b></span></div>
+          ${e.sum > S.cap ? `<div class="alert">Over the cap by ${e.sum - S.cap}!</div>` : ''}
+          ${e.stuck ? `<div class="alert">No available player fits — lineup can't be completed under ${S.cap}.</div>` : ''}
+          ${e.left && tm.players.length && available(t).length < e.left ? `<div class="alert">Only ${available(t).length} player(s) left for ${e.left} slot(s) — forfeit risk.</div>` : ''}
         </div>`;
-      }).join('') || `<p class="hint">No players yet — add your roster below.</p>`;
-      return `<div class="panel roster" style="--c:${colors[t]}">
-        <h2><span style="color:${colors[t]}">${esc(S.teams[t].name)}</span><span>${S.teams[t].players.length}/8</span></h2>
-        <div class="plist">${rows}</div>
-        <form class="addrow" data-add="${t}">
-          <input class="n" name="n" placeholder="Player name" required maxlength="30" />
-          <input class="s" name="s" type="number" placeholder="SL" min="${f.min}" max="${f.max}" required />
-          <button class="btn small" type="submit">Add</button>
-        </form>
+      }).join('');
+
+      q('[data-r="matches"]').innerHTML = S.matches.map((m, i) => {
+        const first = (S.firstUp + i) % 2;
+        const cell = t => {
+          const p = m[t] && playerById(t, m[t]);
+          const tgt = S.target[t] === i ? 'target' : '';
+          return p
+            ? `<div class="slot filled ${tgt}" style="--c:${colors[t]}" data-slot="${t}:${i}">
+                 <span class="sl">${p.sl}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</span>
+                 <span class="x" data-clear="${t}:${i}" title="Clear">✕</span></div>`
+            : `<button class="slot ${tgt}" style="--c:${colors[t]}" data-slot="${t}:${i}"><span class="ph">${tgt ? '▶ next pick' : 'open'}</span></button>`;
+        };
+        return `<div class="match">
+          <div class="mnum"><b>#${i + 1}</b><em style="color:${colors[first]}" title="${esc(S.teams[first].name)} puts up first">${first ? 'Away' : 'Home'} up</em></div>
+          ${cell(0)}<div class="vs">vs</div>${cell(1)}</div>`;
+      }).join('');
+
+      q('[data-r="rosters"]').innerHTML = [0, 1].map(t => {
+        const e = E[t], used = new Set(pickedIds(t));
+        const players = [...S.teams[t].players].sort((a, b) => b.sl - a.sl || a.name.localeCompare(b.name));
+        const rows = players.map(p => {
+          const nm = `<span class="nm">${esc(p.name)}${statLine(p)}</span>`;
+          if (used.has(p.id)) {
+            const mi = S.matches.findIndex(m => m[t] === p.id) + 1;
+            return `<div class="p played"><span class="sl">${p.sl}</span>${nm}<span class="tag">played #${mi}</span></div>`;
+          }
+          if (p.out) {
+            return `<div class="prow"><div class="p out"><span class="sl">${p.sl}</span>${nm}<span class="tag">not here</span></div>
+              <button class="sit" data-sit="${t}:${p.id}" title="Mark present">↩</button>
+              <button class="del" data-del="${t}:${p.id}" title="Remove">🗑</button></div>`;
+          }
+          const r = e.res.get(p.id), ok = r && r.ok;
+          const tag = !e.left ? 'done' : ok ? 'can play' : `too high (${r.floor}>${S.cap})`;
+          return `<div class="prow">
+            <button class="p ${ok ? 'ok' : 'red'}" style="--c:${colors[t]}" data-pick="${t}:${p.id}" ${ok ? '' : 'disabled'}
+              title="${ok ? 'Put up' : `Min possible total would be ${r.floor}`}">
+              <span class="sl">${p.sl}</span>${nm}<span class="tag">${tag}</span></button>
+            <button class="sit" data-sit="${t}:${p.id}" title="Mark not here tonight">💤</button>
+            <button class="del" data-del="${t}:${p.id}" title="Remove from roster">🗑</button></div>`;
+        }).join('') || `<p class="hint">No players yet — paste the matchup above or add players below.</p>`;
+        return `<div class="panel roster" style="--c:${colors[t]}">
+          <h3><span style="color:${colors[t]}">${esc(S.teams[t].name)}</span><span>${S.teams[t].players.length}/8</span></h3>
+          <div class="plist">${rows}</div>
+          <form class="addrow" data-add="${t}">
+            <input class="n" name="n" placeholder="Player name" required maxlength="30" />
+            <input class="s" name="s" type="number" placeholder="SL" min="${F.min}" max="${F.max}" required />
+            <button class="btn small" type="submit">Add</button>
+          </form></div>`;
+      }).join('');
+      save();
+    }
+
+    // ----- import -----
+    let parsed = null;
+    const imp = q('[data-r="imp"]'), ta = q('.impText');
+    function openImp(text = '') {
+      imp.classList.add('on'); ta.value = text; preview();
+      setTimeout(() => ta.focus(), 0);
+    }
+    const closeImp = () => imp.classList.remove('on');
+    function preview() {
+      const txt = ta.value, pv = q('[data-r="pv"]'), loadBtn = q('[data-act="impLoad"]');
+      parsed = txt.trim() ? parseMatchup(txt) : null;
+      const ok = parsed && parsed.teams.length;
+      loadBtn.disabled = !ok;
+      q('[data-r="oneWrap"]').style.display = ok && parsed.teams.length === 1 ? '' : 'none';
+      if (!txt.trim()) { pv.innerHTML = ''; return; }
+      if (!ok) { pv.innerHTML = `<div class="pv"><span class="err">Couldn't find any players. Make sure the roster rows (name, #member, skill level) are included.</span></div>`; return; }
+      const m = parsed.meta;
+      const outOfRange = parsed.teams.flatMap(t => t.players).filter(p => p.sl < F.min || p.sl > F.max);
+      const mismatch = parsed.format && parsed.format !== fmt;
+      pv.innerHTML = `<div class="pv">
+        ${mismatch ? `<div class="mismatch">⚠ This looks like a <b>${FMT[parsed.format].label}</b> matchup, but you're in the <b>${F.label}</b> section.
+          <div class="row" style="justify-content:flex-start;margin-top:6px"><button class="btn small" data-act="sendOther">Load into ${FMT[other].label} instead</button></div></div>` : ''}
+        ${outOfRange.length ? `<span class="err">Skill levels outside ${F.label}'s ${F.min}–${F.max}: ${outOfRange.map(p => esc(p.name) + ' (' + p.sl + ')').join(', ')}</span>` : ''}
+        <span class="ok">✓ Found ${parsed.teams.length} team(s), ${parsed.teams.reduce((a, t) => a + t.players.length, 0)} players${parsed.format ? ' · looks like ' + FMT[parsed.format].label : ''}</span>
+        ${m.date || m.location ? `<span>${esc([m.date, m.time, m.location].filter(Boolean).join(' · '))}</span>` : ''}
+        ${parsed.teams.map(t => `<div><b>${esc(t.side ? t.side[0].toUpperCase() + t.side.slice(1) + ': ' : '')}${esc(t.name || 'Team')}</b>${t.teamNo ? ' #' + esc(t.teamNo) : ''}
+          <table>${t.players.map(p => `<tr><td>${esc(p.name)}</td><td>SL ${p.sl}</td><td>${p.played != null ? p.won + '/' + p.played : ''}</td><td>${p.ppm ?? ''}</td></tr>`).join('')}</table></div>`).join('')}
       </div>`;
-    }).join('');
-    save();
-  }
+    }
+    async function loadParsed() {
+      if (!parsed?.teams.length) return;
+      const hasData = S.teams.some(t => t.players.length) || S.matches.some(m => m[0] || m[1]);
+      if (hasData && !(await ask(`Replace the current ${F.label} rosters and clear tonight's ${F.label} lineup?`, 'Replace'))) return;
+      const toTeam = t => ({ name: t.name || 'Team', teamNo: t.teamNo, divNo: t.divNo, players: t.players.map(p => ({ id: uid(), ...p })) });
+      if (parsed.teams.length === 1) S.teams[+q('[data-r="one"]').value] = toTeam(parsed.teams[0]);
+      else {
+        const home = parsed.teams.find(t => t.side === 'home') || parsed.teams[0];
+        S.teams = [toTeam(home), toTeam(parsed.teams.find(t => t !== home))];
+      }
+      S.meta = parsed.meta;
+      S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
+      S.target = [0, 0];
+      closeImp(); render();
+    }
 
-  // in-page confirm dialog (window.confirm is blocked in sandboxed frames)
-  function ask(msg, yes = 'OK') {
-    return new Promise(res => {
-      const d = $('dlg'); $('dlgmsg').textContent = msg; $('dlgyes').textContent = yes; d.classList.add('on');
-      const done = v => { d.classList.remove('on'); $('dlgyes').onclick = $('dlgno').onclick = null; res(v); };
-      $('dlgyes').onclick = () => done(true); $('dlgno').onclick = () => done(false);
+    // ----- events (scoped to this section) -----
+    root.addEventListener('click', async ev => {
+      const act = ev.target.closest('[data-act]')?.dataset.act;
+      if (act) {
+        if (act === 'import') openImp();
+        else if (act === 'impCancel') closeImp();
+        else if (act === 'impLoad') loadParsed();
+        else if (act === 'sendOther') { const txt = ta.value; closeImp(); apps[other].openImport(txt); }
+        else if (act === 'metaX') { S.meta = null; render(); }
+        else if (act === 'swap') { S.firstUp = 1 - S.firstUp; render(); }
+        else if (act === 'reset') {
+          if (!(await ask(`Start a new ${F.label} night? Clears the ${F.label} matches and "not here" flags; rosters are kept.`, 'New night'))) return;
+          S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
+          S.teams.forEach(tm => tm.players.forEach(p => delete p.out));
+          S.target = [0, 0]; render();
+        }
+        return;
+      }
+      const el = ev.target.closest('[data-clear],[data-slot],[data-pick],[data-del],[data-sit]');
+      if (!el) return;
+      if (el.dataset.clear) {
+        ev.stopPropagation();
+        const [t, i] = el.dataset.clear.split(':').map(Number);
+        S.matches[i][t] = null; S.target[t] = i;
+      } else if (el.dataset.slot) {
+        const [t, i] = el.dataset.slot.split(':').map(Number); S.target[t] = i;
+      } else if (el.dataset.pick) {
+        const [ts, id] = el.dataset.pick.split(':'), t = +ts, i = S.target[t];
+        if (i == null) return;
+        S.matches[i][t] = id; S.target[t] = null;
+      } else if (el.dataset.sit) {
+        const [ts, id] = el.dataset.sit.split(':'); const p = playerById(+ts, id); if (p) p.out = !p.out;
+      } else if (el.dataset.del) {
+        const [ts, id] = el.dataset.del.split(':'), t = +ts, p = playerById(t, id);
+        if (!p || !(await ask(`Remove ${p.name} from the ${F.label} roster?`, 'Remove'))) return;
+        S.teams[t].players = S.teams[t].players.filter(x => x.id !== id);
+        S.matches.forEach(m => { if (m[t] === id) m[t] = null; });
+      }
+      render();
     });
+    root.addEventListener('submit', async ev => {
+      const form = ev.target.closest('[data-add]'); if (!form) return;
+      ev.preventDefault();
+      const t = +form.dataset.add, name = form.n.value.trim(), sl = parseInt(form.s.value, 10);
+      if (!name || isNaN(sl) || sl < F.min || sl > F.max) return;
+      if (S.teams[t].players.length >= 8 && !(await ask('APA rosters max out at 8. Add anyway?', 'Add'))) return;
+      S.teams[t].players.push({ id: uid(), name, sl });
+      render();
+      q(`[data-add="${t}"] input.n`)?.focus();
+    });
+    root.addEventListener('change', ev => {
+      const e = ev.target;
+      if (e.classList.contains('tname')) { S.teams[+e.dataset.t].name = e.value.trim() || 'Team'; render(); }
+      else if (e.dataset.f === 'cap') { S.cap = Math.max(1, parseInt(e.value, 10) || 23); render(); }
+      else if (e.dataset.f === 'nmatch') { S.nMatches = parseInt(e.value, 10) || 5; render(); }
+    });
+    ta.addEventListener('input', preview);
+
+    render();
+    return {
+      get state() { return S; }, eligibility, render,
+      openImport(text) { root.scrollIntoView({ behavior: 'smooth' }); openImp(text); },
+    };
   }
 
-  // ---------- events ----------
-  document.addEventListener('click', async ev => {
-    const el = ev.target.closest('[data-clear],[data-slot],[data-pick],[data-del],[data-sit]');
-    if (!el) return;
-    if (el.dataset.clear) {
-      ev.stopPropagation();
-      const [t, i] = el.dataset.clear.split(':').map(Number);
-      S.matches[i][t] = null; S.target[t] = i;
-    } else if (el.dataset.slot) {
-      const [t, i] = el.dataset.slot.split(':').map(Number);
-      S.target[t] = i;
-    } else if (el.dataset.pick) {
-      const [ts, id] = el.dataset.pick.split(':'); const t = +ts;
-      const i = S.target[t];
-      if (i == null) return;
-      S.matches[i][t] = id; S.target[t] = null;
-    } else if (el.dataset.sit) {
-      const [ts, id] = el.dataset.sit.split(':');
-      const p = playerById(+ts, id); if (p) p.out = !p.out;
-    } else if (el.dataset.del) {
-      const [ts, id] = el.dataset.del.split(':'); const t = +ts;
-      const p = playerById(t, id);
-      if (!p || !(await ask(`Remove ${p.name} from the roster?`, 'Remove'))) return;
-      S.teams[t].players = S.teams[t].players.filter(x => x.id !== id);
-      S.matches.forEach(m => { if (m[t] === id) m[t] = null; });
-    }
-    render();
-  });
-
-  document.addEventListener('submit', async ev => {
-    const form = ev.target.closest('[data-add]'); if (!form) return;
-    ev.preventDefault();
-    const t = +form.dataset.add, f = FMT[S.format];
-    const name = form.n.value.trim(), sl = parseInt(form.s.value, 10);
-    if (!name || isNaN(sl) || sl < f.min || sl > f.max) return;
-    if (S.teams[t].players.length >= 8 && !(await ask('APA rosters max out at 8. Add anyway?', 'Add'))) return;
-    S.teams[t].players.push({ id: uid(), name, sl });
-    render();
-    document.querySelector(`[data-add="${t}"] input.n`)?.focus();
-  });
-
-  document.addEventListener('change', ev => {
-    if (ev.target.classList.contains('tname')) { S.teams[+ev.target.dataset.t].name = ev.target.value.trim() || 'Team'; render(); }
-  });
-  $('fmt').onchange = e => { S.format = e.target.value; render(); };
-  $('cap').onchange = e => { S.cap = Math.max(1, parseInt(e.target.value, 10) || 23); render(); };
-  $('nmatch').onchange = e => { S.nMatches = parseInt(e.target.value, 10) || 5; render(); };
-  $('swap').onclick = () => { S.firstUp = 1 - S.firstUp; render(); };
-  $('reset').onclick = async () => {
-    if (!(await ask('Start a new night? Clears all matches and "not here" flags; rosters are kept.', 'New night'))) return;
-    S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
-    S.teams.forEach(tm => tm.players.forEach(p => delete p.out));
-    S.target = [0, 0];
-    render();
-  };
-
-  // ---------- import modal ----------
-  let parsed = null;
-  const openImp = () => { $('imp').classList.add('on'); $('impText').value = ''; parsed = null; preview(); setTimeout(() => $('impText').focus(), 0); };
-  const closeImp = () => $('imp').classList.remove('on');
-  function preview() {
-    const txt = $('impText').value;
-    parsed = txt.trim() ? parseMatchup(txt) : null;
-    const ok = parsed && parsed.teams.length;
-    $('impLoad').disabled = !ok;
-    $('impOneWrap').style.display = ok && parsed.teams.length === 1 ? '' : 'none';
-    if (!txt.trim()) { $('impPreview').innerHTML = ''; return; }
-    if (!ok) { $('impPreview').innerHTML = `<div class="pv"><span class="err">Couldn't find any players. Make sure the roster rows (name, #member, skill level) are included.</span></div>`; return; }
-    const m = parsed.meta;
-    const fmtName = parsed.format === '9' ? '9-Ball' : parsed.format === '8' ? '8-Ball' : `unknown (keeping ${S.format}-Ball)`;
-    $('impPreview').innerHTML = `<div class="pv">
-      <span class="ok">✓ Found ${parsed.teams.length} team(s), ${parsed.teams.reduce((a, t) => a + t.players.length, 0)} players · Format: ${fmtName}</span>
-      ${m.date || m.location ? `<span>${esc([m.date, m.time, m.location].filter(Boolean).join(' · '))}</span>` : ''}
-      ${parsed.teams.map(t => `<div><b>${esc(t.side ? t.side[0].toUpperCase() + t.side.slice(1) + ': ' : '')}${esc(t.name || 'Team')}</b>${t.teamNo ? ' #' + esc(t.teamNo) : ''} — SL total of top 5: ${t.players.map(p => p.sl).sort((a, b) => b - a).slice(0, 5).reduce((a, b) => a + b, 0)}
-        <table>${t.players.map(p => `<tr><td>${esc(p.name)}</td><td>SL ${p.sl}</td><td>${p.played != null ? p.won + '/' + p.played : ''}</td><td>${p.ppm ?? ''}</td></tr>`).join('')}</table></div>`).join('')}
-    </div>`;
-  }
-  async function loadParsed() {
-    if (!parsed?.teams.length) return;
-    const hasData = S.teams.some(t => t.players.length) || S.matches.some(m => m[0] || m[1]);
-    if (hasData && !(await ask('Replace the current rosters and clear tonight\'s lineup?', 'Replace'))) return;
-    const toTeam = t => ({ name: t.name || 'Team', teamNo: t.teamNo, divNo: t.divNo,
-      players: t.players.map(p => ({ id: uid(), ...p })) });
-    if (parsed.teams.length === 1) {
-      const idx = +$('impOne').value;
-      S.teams[idx] = toTeam(parsed.teams[0]);
-    } else {
-      const home = parsed.teams.find(t => t.side === 'home') || parsed.teams[0];
-      const away = parsed.teams.find(t => t !== home);
-      S.teams = [toTeam(home), toTeam(away)];
-    }
-    if (parsed.format) S.format = parsed.format;
-    S.meta = parsed.meta;
-    S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
-    S.target = [0, 0];
-    closeImp(); render();
-  }
-  $('importBtn').onclick = openImp;
-  $('impCancel').onclick = closeImp;
-  $('impText').addEventListener('input', preview);
-  $('impLoad').onclick = loadParsed;
-  document.addEventListener('click', e => { if (e.target.id === 'metaX') { S.meta = null; render(); } });
-
-  // expose pure logic for tests
-  window.__PU = { get state() { return S; }, set state(v) { S = v; }, eligibility, render, parseMatchup };
-  render();
+  document.querySelectorAll('.game').forEach(sec => { apps[sec.dataset.fmt] = createApp(sec); });
+  window.__PU = { apps, parseMatchup };
 })();
 </script>
 </body>

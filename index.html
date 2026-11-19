@@ -96,6 +96,23 @@
   .hint { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
   .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 15; padding: 16px; }
+  .modal.on { display: grid; }
+  .box.wide { max-width: 620px; max-height: 92vh; overflow: auto; }
+  .box h3 { margin: 0 0 6px; }
+  #impText { width: 100%; min-height: 170px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px; font: 12px/1.35 ui-monospace, Menlo, Consolas, monospace; resize: vertical; }
+  .pv { margin-top: 8px; font-size: 13px; display: grid; gap: 6px; }
+  .pv .ok { color: #8fe3b6; } .pv .err { color: #ffb3b5; }
+  .pv table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .pv td { padding: 2px 4px; border-top: 1px solid var(--line); }
+  .metacard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px;
+    display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; font-size: 13px; color: var(--muted); }
+  .metacard .when { font-size: 16px; font-weight: 700; color: var(--text); }
+  .metacard b { color: var(--text); font-weight: 600; }
+  .metacard .x { margin-left: auto; background: none; border: 0; color: var(--muted); cursor: pointer; }
+  .tsub { font-size: 12px; color: var(--muted); }
+  .p .nm small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
   #dlg { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 20; padding: 16px; }
   #dlg.on { display: grid; }
   #dlg .box { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; max-width: 340px; width: 100%; }
@@ -124,11 +141,13 @@
   </label>
   <label class="ctl">Cap <input id="cap" type="number" min="1" max="50" /></label>
   <label class="ctl">Matches <input id="nmatch" type="number" min="1" max="7" /></label>
+  <button class="btn small" id="importBtn" title="Paste an APA matchup page">📋 Paste matchup</button>
   <button class="btn small" id="swap" title="Swap which team puts up first">⇄ First up</button>
   <button class="btn small danger" id="reset" title="Clear tonight's matches, keep rosters">New night</button>
 </header>
 
 <main>
+  <section id="meta"></section>
   <section class="board" id="board"></section>
   <section class="panel">
     <h2>Lineup <span class="legend">
@@ -142,6 +161,18 @@
   <section class="rosters" id="rosters"></section>
   <footer>Ineligible = their SL plus the cheapest possible fill for the remaining slots would exceed the cap.</footer>
 </main>
+<div id="imp" class="modal" role="dialog" aria-modal="true"><div class="box wide">
+  <h3>Paste matchup</h3>
+  <p class="hint" style="margin-top:0">On poolplayers.com open the matchup, select everything from the date down through the last away player, copy, and paste it here. A single team's roster table works too.</p>
+  <textarea id="impText" placeholder="Matchup:&#10;Nov&#10;18&#10;Up To No Good (93704)&#10;…"></textarea>
+  <div id="impPreview"></div>
+  <div class="row" style="flex-wrap:wrap">
+    <label class="ctl" id="impOneWrap" style="margin-right:auto;display:none">Load single team into
+      <select id="impOne"><option value="0">Home</option><option value="1">Away</option></select></label>
+    <button class="btn small" id="impCancel">Cancel</button>
+    <button class="btn small" id="impLoad" disabled>Load</button>
+  </div>
+</div></div>
 <div id="dlg" role="dialog" aria-modal="true"><div class="box"><div id="dlgmsg"></div>
   <div class="row"><button class="btn small" id="dlgno">Cancel</button><button class="btn small danger" id="dlgyes">OK</button></div></div></div>
 
@@ -165,6 +196,88 @@
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { S = fresh(); }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+
+  // ---------- APA matchup paste parser ----------
+  const MONTHS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const PLAYER_RE = /(?:^|\n)[ \t]*([A-Za-z][^\n#\t]*?)[ \t]*(?:\n[ \t]*|[ \t]+)(?:#(\d+)[ \t]*(?:\n[ \t]*|[ \t]+))?(\d)(?=[ \t]|\n|$)(?:[ \t]+(\d+)\/(\d+))?(?:[ \t]+([\d.]+)%)?(?:[ \t]+([\d.]+))?(?:[ \t]+([\d.]+)%)?/g;
+  const TEAM_RE = /^(.+?)\s*\((\d+)\)\s*$/;
+
+  function parseRoster(lines) {
+    // team name: first line before the "Player Name" header that isn't noise
+    const hdr = lines.findIndex(l => /player name/i.test(l) && /skill/i.test(l));
+    let name = null, num = null;
+    for (let i = (hdr === -1 ? lines.length : hdr) - 1; i >= 0; i--) {
+      const l = lines[i]; if (!l) continue;
+      const m = l.match(TEAM_RE); name = m ? m[1] : l; num = m ? m[2] : null; break;
+    }
+    const body = lines.slice(hdr + 1).join('\n');
+    const players = [];
+    for (const m of body.matchAll(PLAYER_RE)) {
+      const nm = m[1].trim();
+      if (/^(home|away) team$/i.test(nm) || /player name/i.test(nm)) continue;
+      players.push({
+        name: nm, sl: +m[3], member: m[2] || null,
+        won: m[4] != null ? +m[4] : null, played: m[5] != null ? +m[5] : null,
+        winPct: m[6] != null ? +m[6] : null, ppm: m[7] != null ? +m[7] : null, pa: m[8] != null ? +m[8] : null,
+      });
+    }
+    return { name, divNo: num, players };
+  }
+
+  function parseMatchup(text, today = new Date()) {
+    const lines = String(text).replace(/\r/g, '').replace(/ /g, ' ').split('\n').map(l => l.trim());
+    const meta = { divReps: [] };
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (!meta.date) {
+        const m = l.match(/^([A-Za-z]{3,9})\.?(?:\s+(\d{1,2}))?,?(?:\s+(\d{4}))?$/);
+        const mi = m ? MONTHS.indexOf(m[1].slice(0, 3).toLowerCase()) : -1;
+        if (mi !== -1) {
+          const day = m[2] || ((lines[i + 1] || '').match(/^\d{1,2}$/) || [])[0];
+          if (day) {
+            let y = m[3] ? +m[3] : today.getFullYear();
+            if (!m[3]) { // pick the year that puts the date closest to today
+              const d0 = new Date(y, mi, +day), diff = (d0 - today) / 864e5;
+              if (diff > 183) y--; else if (diff < -183) y++;
+            }
+            meta.date = `${y}-${String(mi + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          }
+        }
+      }
+      let m;
+      if (!meta.time && (m = l.match(/^(.*?)\s*@\s*(\d{1,2}:\d{2}\s*[AP]M)\s*$/i))) { meta.location = m[1].trim() || null; meta.time = m[2].toUpperCase(); }
+      if ((m = l.match(/^Div(?:ision)? Rep:\s*(.+)$/i))) meta.divReps.push(m[1].trim());
+      if (/match not scored/i.test(l)) meta.status = 'Not scored';
+      if (/scoresheet is now available/i.test(l)) meta.scoresheet = true;
+    }
+    // team numbers from the matchup header (the "(93704)" lines before Home Team)
+    const hi = lines.findIndex(l => /^home team$/i.test(l));
+    const ai = lines.findIndex(l => /^away team$/i.test(l));
+    const headEnd = [hi, ai].filter(x => x >= 0).sort((a, b) => a - b)[0] ?? lines.length;
+    const teamNums = lines.slice(0, headEnd).map(l => l.match(TEAM_RE)).filter(m => m && m[2].length >= 4);
+
+    let teams = [];
+    if (hi >= 0 || ai >= 0) {
+      const sect = (start, other) => lines.slice(start + 1, other > start ? other : undefined);
+      if (hi >= 0) teams.push({ side: 'home', ...parseRoster(sect(hi, ai)) });
+      if (ai >= 0) teams.push({ side: 'away', ...parseRoster(sect(ai, hi)) });
+    } else {
+      const r = parseRoster(lines);
+      if (r.players.length) teams.push({ side: null, ...r });
+    }
+    teams = teams.filter(t => t.players.length);
+    for (const t of teams) {
+      const hit = teamNums.find(m => m[1].toLowerCase() === (t.name || '').toLowerCase());
+      t.teamNo = hit ? hit[2] : null;
+    }
+    // detect format: 9-ball PPM is out of 20, 8-ball out of 3; SL 1/8/9 only exist in 9-ball
+    const all = teams.flatMap(t => t.players);
+    const ppms = all.map(p => p.ppm).filter(x => x != null);
+    let format = null;
+    if (all.some(p => p.sl === 1 || p.sl >= 8)) format = '9';
+    else if (ppms.length) format = ppms.reduce((a, b) => a + b, 0) / ppms.length > 3.5 ? '9' : '8';
+    return { meta, teams, format };
+  }
 
   // ---------- core rule logic ----------
   const playerById = (t, id) => S.teams[t].players.find(p => p.id === id);
@@ -216,12 +329,28 @@
     $('fmt').value = S.format; $('cap').value = S.cap; $('nmatch').value = S.nMatches;
     const E = [eligibility(0), eligibility(1)];
 
+    // meta
+    const M = S.meta;
+    if (M && (M.date || M.location || M.time)) {
+      const d = M.date ? new Date(M.date + 'T12:00:00') : null;
+      const when = d ? d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+      $('meta').innerHTML = `<div class="metacard">
+        <span class="when">${esc(when)}${M.time ? ' · ' + esc(M.time) : ''}</span>
+        ${M.location ? `<span>📍 <b>${esc(M.location)}</b></span>` : ''}
+        <span><b style="color:var(--a)">${esc(S.teams[0].name)}</b> vs <b style="color:var(--b)">${esc(S.teams[1].name)}</b></span>
+        ${M.divReps?.length ? `<span>Div rep: ${M.divReps.map(esc).join(', ')}</span>` : ''}
+        ${M.status ? `<span>${esc(M.status)}</span>` : ''}
+        ${M.scoresheet ? `<span>Scoresheet available</span>` : ''}
+        <button class="x" id="metaX" title="Hide match info">✕</button></div>`;
+    } else $('meta').innerHTML = '';
+
     // board
     $('board').innerHTML = [0, 1].map(t => {
       const e = E[t], pct = Math.min(100, (e.sum / S.cap) * 100);
       const cls = e.sum > S.cap ? 'bad' : e.roomLeft <= 4 + e.left ? 'warn' : '';
       return `<div class="tcard" style="--c:${colors[t]}">
         <input class="tname" data-t="${t}" value="${esc(S.teams[t].name)}" aria-label="Team name" />
+        <div class="tsub">${t === 0 ? 'Home' : 'Away'}${S.teams[t].teamNo ? ' · #' + esc(S.teams[t].teamNo) : ''}${S.teams[t].divNo ? ' · Team ' + esc(S.teams[t].divNo) : ''}</div>
         <div class="sum"><b>${e.sum}</b><small>/ ${S.cap}</small></div>
         <div class="bar ${cls}"><i style="width:${pct}%"></i></div>
         <div class="stats">
@@ -248,23 +377,30 @@
           : `<button class="slot ${tgt}" style="--c:${colors[t]}" data-slot="${t}:${i}"><span class="ph">${tgt ? '▶ next pick' : 'open'}</span></button>`;
       };
       return `<div class="match">
-        <div class="mnum"><b>#${i + 1}</b><em style="color:${colors[first]}">${esc(S.teams[first].name).slice(0, 8)} up</em></div>
+        <div class="mnum"><b>#${i + 1}</b><em style="color:${colors[first]}" title="${esc(S.teams[first].name)} puts up first">${first ? 'Away' : 'Home'} up</em></div>
         ${cell(0)}<div class="vs">vs</div>${cell(1)}
       </div>`;
     }).join('');
 
     // rosters
     const f = FMT[S.format];
+    const statLine = p => {
+      const bits = [];
+      if (p.played != null) bits.push(`${p.won}/${p.played}`);
+      if (p.winPct != null) bits.push(`${Math.round(p.winPct)}%`);
+      if (p.ppm != null) bits.push(`PPM ${p.ppm}`);
+      return bits.length ? `<small>${esc(bits.join(' · '))}</small>` : '';
+    };
     $('rosters').innerHTML = [0, 1].map(t => {
       const e = E[t], used = new Set(pickedIds(t));
       const players = [...S.teams[t].players].sort((a, b) => b.sl - a.sl || a.name.localeCompare(b.name));
       const rows = players.map(p => {
         if (used.has(p.id)) {
           const mi = S.matches.findIndex(m => m[t] === p.id) + 1;
-          return `<div class="p played"><span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}</span><span class="tag">played #${mi}</span></div>`;
+          return `<div class="p played"><span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}${statLine(p)}</span><span class="tag">played #${mi}</span></div>`;
         }
         if (p.out) {
-          return `<div class="p out"><span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}</span><span class="tag">not here</span>
+          return `<div class="p out"><span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}${statLine(p)}</span><span class="tag">not here</span>
             <button class="sit" data-sit="${t}:${p.id}" title="Mark present">↩</button>
             <button class="del" data-del="${t}:${p.id}" title="Remove">🗑</button></div>`;
         }
@@ -274,7 +410,7 @@
         return `<div style="display:flex;gap:4px;align-items:center">
           <button class="p ${ok ? 'ok' : 'red'}" style="--c:${colors[t]}" data-pick="${t}:${p.id}" ${ok ? '' : 'disabled'}
             title="${ok ? 'Put up' : `Min possible total would be ${r.floor}`}">
-            <span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}</span><span class="tag">${tag}</span>
+            <span class="sl">${p.sl}</span><span class="nm">${esc(p.name)}${statLine(p)}</span><span class="tag">${tag}</span>
           </button>
           <button class="sit" data-sit="${t}:${p.id}" title="Mark not here tonight">💤</button>
           <button class="del" data-del="${t}:${p.id}" title="Remove from roster">🗑</button>
@@ -358,8 +494,55 @@
     render();
   };
 
+  // ---------- import modal ----------
+  let parsed = null;
+  const openImp = () => { $('imp').classList.add('on'); $('impText').value = ''; parsed = null; preview(); setTimeout(() => $('impText').focus(), 0); };
+  const closeImp = () => $('imp').classList.remove('on');
+  function preview() {
+    const txt = $('impText').value;
+    parsed = txt.trim() ? parseMatchup(txt) : null;
+    const ok = parsed && parsed.teams.length;
+    $('impLoad').disabled = !ok;
+    $('impOneWrap').style.display = ok && parsed.teams.length === 1 ? '' : 'none';
+    if (!txt.trim()) { $('impPreview').innerHTML = ''; return; }
+    if (!ok) { $('impPreview').innerHTML = `<div class="pv"><span class="err">Couldn't find any players. Make sure the roster rows (name, #member, skill level) are included.</span></div>`; return; }
+    const m = parsed.meta;
+    const fmtName = parsed.format === '9' ? '9-Ball' : parsed.format === '8' ? '8-Ball' : `unknown (keeping ${S.format}-Ball)`;
+    $('impPreview').innerHTML = `<div class="pv">
+      <span class="ok">✓ Found ${parsed.teams.length} team(s), ${parsed.teams.reduce((a, t) => a + t.players.length, 0)} players · Format: ${fmtName}</span>
+      ${m.date || m.location ? `<span>${esc([m.date, m.time, m.location].filter(Boolean).join(' · '))}</span>` : ''}
+      ${parsed.teams.map(t => `<div><b>${esc(t.side ? t.side[0].toUpperCase() + t.side.slice(1) + ': ' : '')}${esc(t.name || 'Team')}</b>${t.teamNo ? ' #' + esc(t.teamNo) : ''} — SL total of top 5: ${t.players.map(p => p.sl).sort((a, b) => b - a).slice(0, 5).reduce((a, b) => a + b, 0)}
+        <table>${t.players.map(p => `<tr><td>${esc(p.name)}</td><td>SL ${p.sl}</td><td>${p.played != null ? p.won + '/' + p.played : ''}</td><td>${p.ppm ?? ''}</td></tr>`).join('')}</table></div>`).join('')}
+    </div>`;
+  }
+  async function loadParsed() {
+    if (!parsed?.teams.length) return;
+    const hasData = S.teams.some(t => t.players.length) || S.matches.some(m => m[0] || m[1]);
+    if (hasData && !(await ask('Replace the current rosters and clear tonight\'s lineup?', 'Replace'))) return;
+    const toTeam = t => ({ name: t.name || 'Team', teamNo: t.teamNo, divNo: t.divNo,
+      players: t.players.map(p => ({ id: uid(), ...p })) });
+    if (parsed.teams.length === 1) {
+      const idx = +$('impOne').value;
+      S.teams[idx] = toTeam(parsed.teams[0]);
+    } else {
+      const home = parsed.teams.find(t => t.side === 'home') || parsed.teams[0];
+      const away = parsed.teams.find(t => t !== home);
+      S.teams = [toTeam(home), toTeam(away)];
+    }
+    if (parsed.format) S.format = parsed.format;
+    S.meta = parsed.meta;
+    S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
+    S.target = [0, 0];
+    closeImp(); render();
+  }
+  $('importBtn').onclick = openImp;
+  $('impCancel').onclick = closeImp;
+  $('impText').addEventListener('input', preview);
+  $('impLoad').onclick = loadParsed;
+  document.addEventListener('click', e => { if (e.target.id === 'metaX') { S.meta = null; render(); } });
+
   // expose pure logic for tests
-  window.__PU = { get state() { return S; }, set state(v) { S = v; }, eligibility, render };
+  window.__PU = { get state() { return S; }, set state(v) { S = v; }, eligibility, render, parseMatchup };
   render();
 })();
 </script>

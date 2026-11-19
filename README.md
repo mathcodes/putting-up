@@ -13,6 +13,15 @@ A live, phone-friendly tool for APA team captains to put up players under the **
 - 9-Ball (SL 1–9) or 8-Ball (SL 2–7); cap is editable.
 - "New night" clears matches but keeps rosters. Everything saves in the browser (localStorage).
 
+## Paste a matchup
+Tap **📋 Paste matchup**, then paste the matchup page from poolplayers.com (from the date down through the last away player). It picks up:
+- Home and away team names, team numbers (e.g. #93704) and division team numbers (04)
+- Every player's name, member #, skill level, and season stats (W/P, win %, PPM, PA)
+- Match date, time, venue, div reps, scored/scoresheet status
+- Format (9-ball vs 8-ball), detected from skill levels and PPM
+
+You get a preview before it loads. A single team's roster table also works; you choose Home or Away.
+
 ## Run
 No build step — it's a single static file.
 

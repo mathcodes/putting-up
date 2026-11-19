@@ -134,6 +134,7 @@
   .p.red .nm { color: #ffb3b5; text-decoration: line-through; text-decoration-color: rgba(229,72,77,.6); }
   .p.red .sl { background: var(--bad); }
   .p.red .tag { background: var(--bad); color: #fff; }
+  .p .nm small.rt { display: none; color: #ff8f93; font-weight: 700; text-decoration: none; }
   .p.played { opacity: .45; cursor: default; background: var(--played); }
   .p.played .tag, .p.out .tag { background: #26332e; color: var(--muted); }
   .p.out { opacity: .55; }
@@ -191,7 +192,8 @@
     .p { padding: 7px 6px; gap: 6px; }
     .p .tag { font-size: 10px; padding: 2px 4px; }
     .p .tl { display: none; }
-    .p.ok .tag { display: none; }
+    .p.ok .tag, .p.red .tag { display: none; }
+    .p.red .nm small.rt { display: block; }
     .p .nm { white-space: normal; overflow-wrap: break-word; hyphens: auto; line-height: 1.2; }
     .p .nm small { white-space: nowrap; }
     .del, .sit { padding: 2px 1px; }
@@ -531,7 +533,7 @@
           return `<div class="prow">
             <button class="p ${ok ? 'ok' : 'red'}" style="--c:${colors[t]}" data-pick="${t}:${p.id}" ${ok ? '' : 'disabled'}
               title="${ok ? 'Put up' : `Min possible total would be ${r.floor}`}">
-              <span class="sl">${p.sl}</span>${nm}<span class="tag">${tag}</span></button>
+              <span class="sl">${p.sl}</span>${ok ? nm : nm.replace('</span>', `<small class="rt">too high · ${r.floor}>${S.cap}</small></span>`)}<span class="tag">${tag}</span></button>
             <button class="sit" data-sit="${t}:${p.id}" title="Mark not here tonight">💤</button>
             <button class="del" data-del="${t}:${p.id}" title="Remove from roster">🗑</button></div>`;
         }).join('') || `<p class="hint">No players yet — paste the matchup above or add players below.</p>`;

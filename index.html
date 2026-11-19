@@ -29,7 +29,7 @@
   .jump svg { width: 22px; height: 22px; }
 
   /* game sections */
-  .game { max-width: 1100px; margin: 0 auto; padding: 14px 12px 28px; display: grid; gap: 12px; }
+  .game { max-width: 1100px; margin: 0 auto; padding: 14px 12px 28px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .game + .game { border-top: 6px double var(--line); margin-top: 8px; }
   .game[data-fmt="8"] { --accent: #d8dee4; --accent-bg: linear-gradient(135deg, #050505, #1d2320 70%); --accent-ink: #fff; }
   .game[data-fmt="9"] { --accent: #f5c518; --accent-bg: linear-gradient(135deg, #3a2e05, #1a2a14 70%); --accent-ink: #ffe27a; }
@@ -63,9 +63,12 @@
   .howto .tiny { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
   details > summary { list-style: none; cursor: pointer; user-select: none; }
   details > summary::-webkit-details-marker { display: none; }
-  .fold { display: flex; align-items: center; gap: 8px; font-weight: 700; }
-  .fold .chev { display: inline-block; transition: transform .15s; font-size: 12px; }
-  details[open] > .fold .chev { transform: rotate(90deg); }
+  .fold { display: flex; align-items: center; gap: 8px; font-weight: 700; min-width: 0; }
+  .fold .lbl { flex: 1 1 auto; min-width: 0; }
+  .fold .chev, .fold .tog { flex: none; }
+  .fold .chev { display: inline-block; width: 8px; height: 8px; border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; margin: 0 3px 0 1px; }
+  details[open] > .fold .chev { transform: rotate(45deg); margin-top: -4px; }
   .fold .tog { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted);
     border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
   .fold .tog::after { content: "Show"; }
@@ -75,11 +78,13 @@
   .howto:not([open]) { padding-bottom: 12px; }
   .tools { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
   .tools > summary { color: var(--text); font-size: 14px; }
-  .tools .sumline { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .tools .sumline { color: var(--muted); font-weight: 400; font-size: 13px; flex: 1 1 0; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tools .lbl { flex: none; }
   .tools[open] > summary { margin-bottom: 8px; }
 
   /* Scoreboard */
-  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .tcard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; border-top: 4px solid var(--c); }
   .tcard input.tname { background: transparent; border: 0; font-weight: 700; font-size: 16px; width: 100%; padding: 0; color: var(--c); }
   .tsub { font-size: 12px; color: var(--muted); }
@@ -97,7 +102,7 @@
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
   .panel h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
     margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .match { display: grid; grid-template-columns: 54px 1fr 26px 1fr; gap: 6px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); }
+  .match { display: grid; grid-template-columns: 54px minmax(0, 1fr) 26px minmax(0, 1fr); gap: 6px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); }
   .match:first-of-type { border-top: 0; }
   .mnum { font-size: 12px; color: var(--muted); line-height: 1.1; }
   .mnum b { display: block; font-size: 15px; color: var(--text); }
@@ -113,9 +118,10 @@
     background: var(--felt-dim); font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; flex: none; }
 
   /* Rosters */
-  .rosters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rosters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .roster { border-top: 4px solid var(--c); }
-  .plist { display: grid; gap: 6px; }
+  .plist { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .prow { min-width: 0; }
   .prow { display: flex; gap: 4px; align-items: center; }
   .p { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px; background: var(--panel2);
     border: 1px solid var(--line); cursor: pointer; width: 100%; text-align: left; min-width: 0; }
@@ -167,7 +173,7 @@
   /* links */
   .links { max-width: 1100px; margin: 0 auto; padding: 18px 12px 10px; border-top: 6px double var(--line); }
   .links h2 { margin: 0 0 10px; font-size: 26px; letter-spacing: 1px; }
-  .lgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .lgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 10px; }
   .lcard { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
   .lcard h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
   .lcard ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -180,10 +186,15 @@
 
   @media (max-width: 640px) {
     body { font-size: 14px; }
-    .match { grid-template-columns: 40px 1fr 16px 1fr; gap: 4px; }
+    .match { grid-template-columns: 40px minmax(0, 1fr) 16px minmax(0, 1fr); gap: 4px; }
     .sum b { font-size: 28px; }
     .p { padding: 7px 6px; gap: 6px; }
     .p .tag { font-size: 10px; padding: 2px 4px; }
+    .p .tl { display: none; }
+    .p.ok .tag { display: none; }
+    .p .nm { white-space: normal; overflow-wrap: break-word; hyphens: auto; line-height: 1.2; }
+    .p .nm small { white-space: nowrap; }
+    .del, .sit { padding: 2px 1px; }
     .rosters, .board { gap: 8px; }
     .panel, .tcard { padding: 8px; }
     .banner svg { width: 56px; height: 56px; }
@@ -238,7 +249,7 @@
         font-weight="900" font-size="25" fill="#111">${n}</text>
       <circle cx="50" cy="50" r="46" fill="url(#${k}s)"/></svg>`;
   }
-  document.querySelectorAll('.jump').forEach(a => a.insertAdjacentHTML('afterbegin', ballSVG(+a.dataset.ball)));
+  document.querySelectorAll('.jump[data-ball]').forEach(a => a.insertAdjacentHTML('afterbegin', ballSVG(+a.dataset.ball)));
 
   // in-page confirm (window.confirm is blocked in sandboxed frames)
   function ask(msg, yes = 'OK') {
@@ -366,7 +377,7 @@
       <div class="pastewrap">
         <button class="btn paste" data-act="import">📋 Paste ${F.label} matchup</button>
         <details class="howto" data-fold="howto">
-          <summary class="fold"><span class="chev">▶</span>Where to copy tonight's ${F.label} matchup from<span class="tog"></span></summary>
+          <summary class="fold"><span class="chev" aria-hidden="true"></span><span class="lbl">Where to copy tonight's ${F.label} matchup from</span><span class="tog"></span></summary>
           <p class="up">▲ Copy it, then tap the Paste button above.</p>
           <ol>
             <li>Go to <a href="https://league.poolplayers.com/" target="_blank" rel="noopener">league.poolplayers.com</a> and sign in with your APA account.</li>
@@ -378,7 +389,7 @@
         </details>
       </div>
       <details class="tools" data-fold="tools">
-        <summary class="fold"><span class="chev">▶</span>⚙ ${F.label} settings <span class="sumline" data-r="sumline"></span><span class="tog"></span></summary>
+        <summary class="fold"><span class="chev" aria-hidden="true"></span><span class="lbl">⚙ ${F.label} settings</span><span class="sumline" data-r="sumline"></span><span class="tog"></span></summary>
         <div class="toolbar">
         <label class="ctl">Cap <input data-f="cap" type="number" min="1" max="50" /></label>
         <label class="ctl">Matches <input data-f="nmatch" type="number" min="1" max="7" /></label>
@@ -516,7 +527,7 @@
               <button class="del" data-del="${t}:${p.id}" title="Remove">🗑</button></div>`;
           }
           const r = e.res.get(p.id), ok = r && r.ok;
-          const tag = !e.left ? 'done' : ok ? 'can play' : `too high (${r.floor}>${S.cap})`;
+          const tag = !e.left ? 'done' : ok ? '<span class="tl">can </span>play' : `<span class="tl">too high </span>${r.floor}>${S.cap}`;
           return `<div class="prow">
             <button class="p ${ok ? 'ok' : 'red'}" style="--c:${colors[t]}" data-pick="${t}:${p.id}" ${ok ? '' : 'disabled'}
               title="${ok ? 'Put up' : `Min possible total would be ${r.floor}`}">

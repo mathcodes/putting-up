@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#0d1f17" />
 <title>Putting Up — APA 23 Rule Tracker</title>
 <style>
@@ -96,6 +96,10 @@
   .hint { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
   .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  #dlg { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 20; padding: 16px; }
+  #dlg.on { display: grid; }
+  #dlg .box { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; max-width: 340px; width: 100%; }
+  #dlg .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 4px 0 24px; }
 
   @media (max-width: 640px) {
@@ -138,6 +142,8 @@
   <section class="rosters" id="rosters"></section>
   <footer>Ineligible = their SL plus the cheapest possible fill for the remaining slots would exceed the cap.</footer>
 </main>
+<div id="dlg" role="dialog" aria-modal="true"><div class="box"><div id="dlgmsg"></div>
+  <div class="row"><button class="btn small" id="dlgno">Cancel</button><button class="btn small danger" id="dlgyes">OK</button></div></div></div>
 
 <script>
 (() => {
@@ -287,8 +293,17 @@
     save();
   }
 
+  // in-page confirm dialog (window.confirm is blocked in sandboxed frames)
+  function ask(msg, yes = 'OK') {
+    return new Promise(res => {
+      const d = $('dlg'); $('dlgmsg').textContent = msg; $('dlgyes').textContent = yes; d.classList.add('on');
+      const done = v => { d.classList.remove('on'); $('dlgyes').onclick = $('dlgno').onclick = null; res(v); };
+      $('dlgyes').onclick = () => done(true); $('dlgno').onclick = () => done(false);
+    });
+  }
+
   // ---------- events ----------
-  document.addEventListener('click', ev => {
+  document.addEventListener('click', async ev => {
     const el = ev.target.closest('[data-clear],[data-slot],[data-pick],[data-del],[data-sit]');
     if (!el) return;
     if (el.dataset.clear) {
@@ -309,20 +324,20 @@
     } else if (el.dataset.del) {
       const [ts, id] = el.dataset.del.split(':'); const t = +ts;
       const p = playerById(t, id);
-      if (!p || !confirm(`Remove ${p.name} from the roster?`)) return;
+      if (!p || !(await ask(`Remove ${p.name} from the roster?`, 'Remove'))) return;
       S.teams[t].players = S.teams[t].players.filter(x => x.id !== id);
       S.matches.forEach(m => { if (m[t] === id) m[t] = null; });
     }
     render();
   });
 
-  document.addEventListener('submit', ev => {
+  document.addEventListener('submit', async ev => {
     const form = ev.target.closest('[data-add]'); if (!form) return;
     ev.preventDefault();
     const t = +form.dataset.add, f = FMT[S.format];
     const name = form.n.value.trim(), sl = parseInt(form.s.value, 10);
     if (!name || isNaN(sl) || sl < f.min || sl > f.max) return;
-    if (S.teams[t].players.length >= 8 && !confirm('APA rosters max out at 8. Add anyway?')) return;
+    if (S.teams[t].players.length >= 8 && !(await ask('APA rosters max out at 8. Add anyway?', 'Add'))) return;
     S.teams[t].players.push({ id: uid(), name, sl });
     render();
     document.querySelector(`[data-add="${t}"] input.n`)?.focus();
@@ -335,8 +350,8 @@
   $('cap').onchange = e => { S.cap = Math.max(1, parseInt(e.target.value, 10) || 23); render(); };
   $('nmatch').onchange = e => { S.nMatches = parseInt(e.target.value, 10) || 5; render(); };
   $('swap').onclick = () => { S.firstUp = 1 - S.firstUp; render(); };
-  $('reset').onclick = () => {
-    if (!confirm('Start a new night? Clears all matches and "not here" flags; rosters are kept.')) return;
+  $('reset').onclick = async () => {
+    if (!(await ask('Start a new night? Clears all matches and "not here" flags; rosters are kept.', 'New night'))) return;
     S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
     S.teams.forEach(tm => tm.players.forEach(p => delete p.out));
     S.target = [0, 0];

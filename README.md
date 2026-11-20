@@ -2,6 +2,8 @@
 
 A live, phone-friendly tool for APA team captains to put up players under the **23 rule** — each team's 5 players' skill levels can't total more than 23.
 
+[LIVE](https://mathcodes.github.io/putting-up/)
+
 ## Layout
 The page has two independent copies of the tool, each with its own rosters, lineup and saved data:
 - **8-Ball** on top (SL 2–7)

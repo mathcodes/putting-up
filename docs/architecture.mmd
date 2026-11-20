@@ -1,0 +1,59 @@
+flowchart LR
+  subgraph SRC["Source"]
+    APA["league.poolplayers.com<br/>(public APA data)"]
+  end
+
+  subgraph COLLECT["Collection"]
+    BM["Bookmarklet capture"]
+    WK["Worker<br/>player / team / history jobs<br/>lib/apa/jobs.ts"]
+  end
+
+  subgraph STATS["APA Stats - Next.js 16 on Vercel"]
+    direction TB
+    PX["proxy.ts<br/>session gate<br/>read-only blocked from /api/agent"]
+    subgraph API["API layer (app/api/*)"]
+      LOGIN["/api/login<br/>owner / first name / team / member no."]
+      ING["/api/ingest"]
+      WRK["/api/worker"]
+      POP["/api/populate<br/>startPopulate, startTeamOnly,<br/>rosterForTeam, populateStatus"]
+      AGT["/api/agent<br/>AI assistant - owner only"]
+      LIB["/api/teams-library<br/>PUBLIC GET, CORS *<br/>latest 8-Ball + 9-Ball session"]
+    end
+    AUTH["lib/auth.ts<br/>HMAC apa_session cookie<br/>owner / alias / member / team"]
+    UI["Pages + server actions<br/>welcome, collect, completeness"]
+  end
+
+  DB[("Neon Postgres<br/>drizzle")]
+  LLM["AI model<br/>(owner's tokens)"]
+
+  subgraph PU["Putting Up - static index.html on GitHub Pages"]
+    direction TB
+    SYNC["sync()<br/>6h throttle"]
+    IDB[("IndexedDB<br/>Lib: saved teams")]
+    SIDE["Sidebar team lists<br/>8-Ball / 9-Ball"]
+    SS[("sessionStorage<br/>tonight's lineup")]
+    APP["createApp x2<br/>23-rule lineup, no self-play"]
+    PASTE["Paste team button"]
+  end
+
+  APA --> BM --> ING
+  APA --> WK
+  WRK <--> WK
+  PX --> API
+  LOGIN --> AUTH
+  POP --> WK
+  ING --> DB
+  WK --> DB
+  POP --> DB
+  UI --> POP
+  AGT --> LLM
+  AGT --> DB
+  LIB --> DB
+  LIB -- "JSON over HTTPS" --> SYNC
+  SYNC --> IDB --> SIDE --> APP
+  PASTE --> IDB
+  PASTE --> APP
+  APP <--> SS
+
+  classDef api fill:#2a3a2a,stroke:#7ec27e,stroke-width:2px,color:#fff
+  class LOGIN,ING,WRK,POP,AGT,LIB api

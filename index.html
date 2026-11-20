@@ -208,6 +208,8 @@
   .tmname .alt { color: var(--accent, var(--felt)); }
   .tmside { width: 28px; flex: none; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px; }
   .tmside[data-side="0"] { color: var(--a); } .tmside[data-side="1"] { color: var(--b); }
+  .tm.on .tmname { border-color: var(--felt-dim); }
+  .tmname:disabled, .tmside:disabled { opacity: .45; cursor: not-allowed; }
   .tmrm { background: none; border: 0; color: var(--muted); cursor: pointer; width: 22px; flex: none; opacity: .6; }
   .tmrm:hover { opacity: 1; }
   .tsync { display: grid; gap: 6px; }
@@ -307,6 +309,14 @@
     });
   }
 
+  // in-page notice with a single OK button
+  function tell(msg) {
+    return new Promise(res => {
+      const d = $('dlg'), no = $('dlgno'); $('dlgmsg').textContent = msg; $('dlgyes').textContent = 'OK'; no.style.display = 'none'; d.classList.add('on');
+      $('dlgyes').onclick = () => { d.classList.remove('on'); no.style.display = ''; $('dlgyes').onclick = null; res(); };
+    });
+  }
+
   // ---------- APA matchup paste parser ----------
   const MONTHS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
   const PLAYER_RE = /(?:^|\n)[ \t]*([A-Za-z][^\n#\t]*?)[ \t]*(?:\n[ \t]*|[ \t]+)(?:#(\d+)[ \t]*(?:\n[ \t]*|[ \t]+))?(\d)(?=[ \t]|\n|$)(?:[ \t]+(\d+)\/(\d+))?(?:[ \t]+([\d.]+)%)?(?:[ \t]+([\d.]+))?(?:[ \t]+([\d.]+)%)?/g;
@@ -390,6 +400,8 @@
     return { meta, teams, format };
   }
 
+  let onAppRender = () => {};
+
   // ---------- saved teams: a small database in the browser (IndexedDB) ----------
   const norm = x => String(x || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const teamKey = (f, name) => `${f}:${norm(name)}`;
@@ -441,8 +453,7 @@
         let n = 0;
         for (const r of Array.isArray(list) ? list : []) {
           if (!r || !r.name || !FMT[r.format] || !Array.isArray(r.players)) continue;
-          const players = r.players.filter(p => p && p.name && Number.isFinite(+p.sl)).map(clean);
-          if (!players.length) continue;
+          const players = r.players.filter(p => p && p.name && Number.isFinite(+p.sl)).map(clean); // may be empty: roster not captured yet
           const key = teamKey(r.format, r.name), cur = cache.get(key);
           if (cur && (cur.source === 'paste' || cur.hidden)) continue;
           const e = { key, fmt: r.format, name: String(r.name), teamNo: r.number ?? null, divNo: null, standing: r.standing ?? null,
@@ -656,6 +667,7 @@
           </form></div>`;
       }).join('');
       save();
+      onAppRender();
     }
 
     // ----- import -----
@@ -768,13 +780,19 @@
 
     // Fill a roster from a saved team. No side given: the first empty side, else ask before replacing Away.
     async function loadTeam(entry, side) {
-      const empty = t => !S.teams[t].players.length;
+      const emptyish = t => !S.teams[t].players.length;
+      const there = [0, 1].find(i => teamKey(fmt, S.teams[i].name) === entry.key);
+      if (there != null && (side == null || side !== there)) {
+        await tell(`${entry.name} is already playing as ${there ? 'Away' : 'Home'}. A team can't play against itself, so pick the other team for the other side.`);
+        return;
+      }
+      if (there != null) return; // already on that side
       let t = side;
-      if (t == null) t = empty(0) ? 0 : empty(1) ? 1 : null;
+      if (t == null) t = emptyish(0) ? 0 : emptyish(1) ? 1 : null;
       if (t == null) {
         if (!(await ask(`Both ${F.label} rosters are filled. Replace ${S.teams[1].name} (Away) with ${entry.name}?`, 'Replace Away'))) return;
         t = 1;
-      } else if (!empty(t) && side != null && !(await ask(`Replace ${S.teams[t].name} with ${entry.name}?`, 'Replace'))) return;
+      } else if (!emptyish(t) && side != null && !(await ask(`Replace ${S.teams[t].name} with ${entry.name}?`, 'Replace'))) return;
       S.teams[t] = { name: entry.name, teamNo: entry.teamNo, divNo: entry.divNo, players: entry.players.map(p => ({ id: uid(), ...p })) };
       S.matches.forEach(m => { m[t] = null; });
       S.target[t] = 0; S.meta = null;
@@ -795,19 +813,22 @@
   // ---------- saved teams sidebar ----------
   const SYNC_URL = 'https://apa-stats-liard.vercel.app/api/teams-library';
   const SYNC_EVERY = 6 * 3600e3;
-  const lastSync = () => { try { return +localStorage.getItem('putting-up:lastSync') || 0; } catch { return 0; } };
+  const lastSync = () => { try { return +localStorage.getItem('putting-up:lastSync2') || 0; } catch { return 0; } };
   let filter = '';
   function renderTeams() {
     const f = norm(filter);
     $('tlists').innerHTML = ['8', '9'].map(fmt => {
       const all = Lib.list(fmt), list = f ? all.filter(t => norm(t.name).includes(f)) : all, oth = fmt === '8' ? '9' : '8';
       const rows = list.map(t => {
-        const sub = [t.teamNo ? '#' + t.teamNo : '', `${t.players.length} players`, t.standing != null ? `rank ${t.standing}` : ''].filter(Boolean).join(' · ');
+        const sub = [t.teamNo ? '#' + t.teamNo : '', t.players.length ? `${t.players.length} players` : 'no roster yet', t.standing != null ? `rank ${t.standing}` : ''].filter(Boolean).join(' · ');
         const also = Lib.has(oth, t.name) ? ` · <span class="alt">also ${FMT[oth].label}</span>` : '';
-        return `<li class="tm">
-          <button class="tmname" data-load="${esc(t.key)}" title="Load ${esc(t.name)}"><b>${esc(t.name)}</b><small>${esc(sub)}${also}</small></button>
-          <button class="tmside" data-load="${esc(t.key)}" data-side="0" title="Load as Home">H</button>
-          <button class="tmside" data-load="${esc(t.key)}" data-side="1" title="Load as Away">A</button>
+        const on = apps[fmt] ? [0, 1].find(i => teamKey(fmt, apps[fmt].state.teams[i].name) === t.key) : undefined;
+        const onTag = on != null ? ` · <span class="alt">playing as ${on ? 'Away' : 'Home'}</span>` : '';
+        const dis = i => on != null && on !== i ? ' disabled' : '';
+        return `<li class="tm${on != null ? ' on' : ''}">
+          <button class="tmname" data-load="${esc(t.key)}" title="Load ${esc(t.name)}"${on != null ? ' disabled' : ''}><b>${esc(t.name)}</b><small>${esc(sub)}${also}${onTag}</small></button>
+          <button class="tmside" data-load="${esc(t.key)}" data-side="0" title="${on === 1 ? 'Already playing as Away' : 'Load as Home'}"${dis(0)}>H</button>
+          <button class="tmside" data-load="${esc(t.key)}" data-side="1" title="${on === 0 ? 'Already playing as Home' : 'Load as Away'}"${dis(1)}>A</button>
           <button class="tmrm" data-rm="${esc(t.key)}" title="Remove from this list">✕</button></li>`;
       }).join('');
       return `<section class="tgroup" data-fmt="${fmt}"><h3>${ballSVG(+fmt)} ${FMT[fmt].label} teams <span>${all.length}</span></h3>
@@ -824,7 +845,7 @@
       const j = await r.json();
       if (!j.ok) throw new Error('bad response');
       await Lib.mergeRemote(j.teams);
-      try { localStorage.setItem('putting-up:lastSync', String(Date.now())); } catch {}
+      try { localStorage.setItem('putting-up:lastSync2', String(Date.now())); } catch {}
       setMsg(`Synced ${j.teams.length} teams from APA Stats.`);
     } catch { setMsg(force ? 'Couldn’t reach APA Stats. Using the teams saved here.' : ''); }
   }
@@ -846,6 +867,7 @@
   $('teamsClose').addEventListener('click', closeDrawer);
   $('scrim').addEventListener('click', closeDrawer);
   Lib.onChange(renderTeams);
+  onAppRender = renderTeams;
   renderTeams();
   Lib.init().then(() => {
     // Teams already on screen from before this list existed join it (without replacing anything).

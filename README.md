@@ -22,7 +22,13 @@ A **🔗 Links** section at the bottom collects league bylaws, APA/BCA rules, in
 - "Not here" toggle (💤) for absent players; forfeit warning if you run short.
 - Alternating "who puts up first" indicator per match (⇄ to swap).
 - Cap is editable per section.
-- "New night" clears matches but keeps rosters. Everything saves in the browser (localStorage).
+- "New night" clears matches but keeps rosters. Everything saves in the browser (localStorage for tonight's lineup, IndexedDB for saved teams).
+
+## Saved teams
+A **Teams** sidebar (a 👥 Teams drawer on phones) keeps every team you've loaded, split into an **8-Ball** list and a **9-Ball** list. A team shows up under whichever format's stats you loaded, and under both once you've loaded both.
+- Tap a team to fill the next empty roster (Home first, then Away); **H** / **A** pick a side; ✕ removes it from the list.
+- Teams are saved in the browser's IndexedDB (no files, no server) the moment you load a matchup or a single team.
+- **Sync from APA Stats** (also runs on load, at most every 6 hours) adds the current session's teams, rosters and skill levels from the APA Stats site's read-only `/api/teams-library`. A roster you pasted yourself is never overwritten by a sync, and teams you remove stay removed. If the site can't be reached, the saved teams still work.
 
 ## Paste a matchup
 Tap **📋 Paste matchup**, then paste the matchup page from poolplayers.com (from the date down through the last away player). It picks up:

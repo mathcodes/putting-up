@@ -185,6 +185,38 @@
   .topnav .jump.plain { padding: 4px 10px; }
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 4px 0 24px; }
 
+  /* saved teams sidebar (drawer on phones, fixed column on wide screens) */
+  .layout { display: block; }
+  #teams { position: fixed; top: 0; left: 0; bottom: 0; width: min(330px, 90vw); z-index: 14; background: var(--panel);
+    border-right: 1px solid var(--line); transform: translateX(-100%); transition: transform .2s; overflow: auto; padding: 12px; }
+  body.teams-open #teams { transform: none; }
+  .scrim { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 13; }
+  body.teams-open .scrim { display: block; }
+  #teams .th { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  #teams .th h2 { margin: 0; font-size: 20px; flex: 1; }
+  #teams input[type=search] { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; margin-bottom: 10px; }
+  .tgroup { margin-bottom: 14px; }
+  .tgroup h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .tgroup h3 svg { width: 22px; height: 22px; flex: none; }
+  .tgroup h3 span { margin-left: auto; font-weight: 400; }
+  .tgroup ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .tm { display: flex; gap: 3px; align-items: stretch; }
+  .tmname { flex: 1; min-width: 0; text-align: left; background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 6px 9px; cursor: pointer; }
+  .tmname:hover, .tmside:hover { border-color: var(--felt); }
+  .tmname b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tmname small { color: var(--muted); font-size: 11px; }
+  .tmname .alt { color: var(--accent, var(--felt)); }
+  .tmside { width: 28px; flex: none; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px; }
+  .tmside[data-side="0"] { color: var(--a); } .tmside[data-side="1"] { color: var(--b); }
+  .tmrm { background: none; border: 0; color: var(--muted); cursor: pointer; width: 22px; flex: none; opacity: .6; }
+  .tmrm:hover { opacity: 1; }
+  .tsync { display: grid; gap: 6px; }
+  .topnav .jump.teamsbtn { cursor: pointer; font: inherit; font-weight: 700; font-size: 13px; padding: 4px 10px; }
+  @media (min-width: 1100px) {
+    .layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); align-items: start; }
+    #teams { position: sticky; top: 49px; height: calc(100vh - 49px); width: auto; transform: none; z-index: 1; transition: none; }
+    .scrim, .teamsbtn, #teamsClose { display: none !important; }
+  }
   @media (max-width: 640px) {
     body { font-size: 14px; }
     .match { grid-template-columns: 40px minmax(0, 1fr) 16px minmax(0, 1fr); gap: 4px; }
@@ -211,12 +243,25 @@
   <a class="jump" href="#eight" data-ball="8">8-Ball</a>
   <a class="jump" href="#nine" data-ball="9">9-Ball</a>
   <a class="jump plain" href="#links">🔗 Links</a>
+  <button class="jump teamsbtn" id="teamsBtn" type="button">👥 Teams</button>
 </nav>
 
+<div class="scrim" id="scrim"></div>
+<div class="layout">
+<aside id="teams" aria-label="Saved teams">
+  <div class="th"><h2>Teams</h2><button class="btn small" id="teamsClose" type="button">✕ Close</button></div>
+  <input id="tfilter" type="search" placeholder="Find a team…" aria-label="Find a team" />
+  <div id="tlists"></div>
+  <div class="tsync"><button class="btn small" id="tsyncBtn" type="button">↻ Sync from APA Stats</button><p class="hint" id="tsyncMsg" style="margin:0"></p>
+  <p class="hint" style="margin:0">Teams you load are saved in this browser. Tap a team to fill the next empty roster, or H / A to choose Home or Away.</p></div>
+</aside>
+<main>
 <section class="game" id="eight" data-fmt="8"></section>
 <section class="game" id="nine" data-fmt="9"></section>
 <section class="links" id="links"><h2>🔗 Links</h2><div class="lgrid"><div class="lcard"><h3>Our League (APA)</h3><ul><li><a href="https://league.poolplayers.com/" target="_blank" rel="noopener">APA Member Services</a><span>Sign in, team schedules and tonight's matchup to paste above</span></li><li><a href="https://apa-by-laws.s3.amazonaws.com/prod/277_bylaws_2026.pdf" target="_blank" rel="noopener">Local League Bylaws (2026, PDF)</a><span>Local league bylaws for the 2026 season</span></li><li><a href="https://poolplayers.com/" target="_blank" rel="noopener">American Poolplayers Association</a><span>The largest amateur pool league; league info and member resources</span></li><li><a href="https://rules.poolplayers.com/" target="_blank" rel="noopener">APA Pool Rules</a><span>Official manuals, game rules booklets and handicap guidelines</span></li><li><a href="https://rules.poolplayers.com/introduction/" target="_blank" rel="noopener">APA Rules: Introduction</a><span>Start here for how the rules are organized</span></li></ul></div><div class="lcard"><h3>Rules & Governing Bodies</h3><ul><li><a href="https://bca-pool.com/" target="_blank" rel="noopener">Billiard Congress of America (BCA)</a><span>North American governing body: standards, instructor programs, world-standardized rules</span></li><li><a href="https://wpba.com/" target="_blank" rel="noopener">Women's Professional Billiard Association (WPBA)</a><span>Women's pro billiards in the U.S.</span></li><li><a href="https://wpba.com/events-official" target="_blank" rel="noopener">WPBA Events</a><span>Official schedule</span></li><li><a href="https://wpba.com/players" target="_blank" rel="noopener">WPBA Players</a><span>Player rankings and profiles</span></li><li><a href="https://drdavepoolinfo.com/faq/rules/" target="_blank" rel="noopener">Dr. Dave: Pool Rules FAQ</a><span>Rules questions explained</span></li><li><a href="https://drdavepoolinfo.com/faq/foul/scoop/" target="_blank" rel="noopener">Dr. Dave: Is a Scoop Jump a Foul?</a><span>Jump-shot foul explained</span></li></ul></div><div class="lcard"><h3>Instruction, Physics & Drills</h3><ul><li><a href="https://drdavepoolinfo.com/secrets-gems/" target="_blank" rel="noopener">Dr. Dave: Secrets &amp; Gems</a><span>Collected tips and insights</span></li><li><a href="https://drdavepoolinfo.com/dr-dave/" target="_blank" rel="noopener">Dr. Dave Pool Info</a><span>Dr. Dave Alciatore's commercial-free hub on physics and shot mechanics</span></li><li><a href="https://drdavepoolinfo.com/links/instructors/" target="_blank" rel="noopener">Recommended Pool Schools &amp; Instructors</a><span>Directory of instructors and academies</span></li><li><a href="https://www.billiardsdigest.com/links/" target="_blank" rel="noopener">Billiards Digest Links</a><span>Cuemakers, associations and pro tours</span></li></ul></div><div class="lcard"><h3>Forums, Blogs & Video</h3><ul><li><a href="https://forums.azbilliards.com/threads/the-20-best-billiards-and-pool-blogs.51518/" target="_blank" rel="noopener">AzBilliards Forums: 20 Best Pool Blogs</a><span>Community hub for news and tournament talk</span></li><li><a href="https://bullseyebilliards.com/blogs/articles/88076422-resources-for-learning-pool-billiards" target="_blank" rel="noopener">Bullseye Billiards: Resources for Learning</a><span>Roundup of learning resources</span></li><li><a href="https://www.reddit.com/r/billiards/comments/z7zz9c/novice_seeking_resources_books_apps_yt_content/" target="_blank" rel="noopener">r/billiards: Novice Resources Thread</a><span>Books, apps and YouTube picks</span></li><li><span style="margin:0">YouTube channels often recommended there: Accu-Stats, FXBILLIARDS, Niels Feijen, Tor Lowry's Zero-X Billiards</span></li></ul></div></div></section>
 <footer>A player is redded out when their SL plus the cheapest possible picks for the remaining slots would go over the cap.</footer>
+</main>
+</div>
 
 <div id="dlg" class="modal" role="dialog" aria-modal="true"><div class="box"><div id="dlgmsg"></div>
   <div class="row"><button class="btn small" id="dlgno">Cancel</button><button class="btn small danger" id="dlgyes">OK</button></div></div></div>
@@ -344,6 +389,70 @@
     delete meta.format;
     return { meta, teams, format };
   }
+
+  // ---------- saved teams: a small database in the browser (IndexedDB) ----------
+  const norm = x => String(x || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const teamKey = (f, name) => `${f}:${norm(name)}`;
+  const idb = (() => {
+    let p;
+    const open = () => p || (p = new Promise((res, rej) => {
+      if (!('indexedDB' in window)) return rej(new Error('no IndexedDB'));
+      const r = indexedDB.open('putting-up', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('teams', { keyPath: 'key' });
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }));
+    const run = async (mode, fn) => {
+      const db = await open();
+      return new Promise((res, rej) => {
+        const t = db.transaction('teams', mode), req = fn(t.objectStore('teams'));
+        t.oncomplete = () => res(req && req.result); t.onerror = t.onabort = () => rej(t.error);
+      });
+    };
+    return { all: () => run('readonly', s => s.getAll()), put: e => run('readwrite', s => s.put(e)) };
+  })();
+
+  // Entries: { key, fmt, name, teamNo, divNo, standing, session, players[], savedAt, lastUsed, source: 'paste'|'sync', hidden }
+  // If the browser blocks IndexedDB (some private modes) the list still works for this visit.
+  const Lib = (() => {
+    const cache = new Map(), subs = [];
+    const notify = () => subs.forEach(f => f());
+    const put = e => idb.put(e).catch(() => {});
+    const clean = p => ({ name: String(p.name), sl: +p.sl, member: p.member ?? null, won: p.won ?? null, played: p.played ?? null,
+      winPct: p.winPct ?? null, ppm: p.ppm ?? null, pa: p.pa ?? null });
+    return {
+      onChange: f => subs.push(f),
+      async init() { try { (await idb.all()).forEach(e => cache.set(e.key, e)); } catch {} notify(); },
+      get: key => cache.get(key),
+      has: (f, name) => { const e = cache.get(teamKey(f, name)); return !!e && !e.hidden; },
+      list: f => [...cache.values()].filter(e => e.fmt === f && !e.hidden).sort((a, b) => a.name.localeCompare(b.name)),
+      save(f, t, { ifMissing = false } = {}) {
+        const name = String(t.name || '').trim();
+        if (!name || /^(home|away|team)$/i.test(name) || !t.players?.length) return;
+        const key = teamKey(f, name), cur = cache.get(key);
+        if (ifMissing && cur) return;
+        const e = { key, fmt: f, name, teamNo: t.teamNo ?? null, divNo: t.divNo ?? null, standing: cur?.standing ?? null, session: cur?.session ?? null,
+          players: t.players.map(clean), savedAt: Date.now(), lastUsed: cur?.lastUsed || 0, source: 'paste', hidden: false };
+        cache.set(key, e); put(e); notify();
+      },
+      touch(key) { const e = cache.get(key); if (e) { e.lastUsed = Date.now(); put(e); } },
+      remove(key) { const e = cache.get(key); if (e) { e.hidden = true; put(e); notify(); } }, // kept hidden so a sync doesn't bring it back
+      // Teams from APA Stats: add or refresh them, but never overwrite a roster you pasted yourself.
+      async mergeRemote(list) {
+        let n = 0;
+        for (const r of Array.isArray(list) ? list : []) {
+          if (!r || !r.name || !FMT[r.format] || !Array.isArray(r.players)) continue;
+          const players = r.players.filter(p => p && p.name && Number.isFinite(+p.sl)).map(clean);
+          if (!players.length) continue;
+          const key = teamKey(r.format, r.name), cur = cache.get(key);
+          if (cur && (cur.source === 'paste' || cur.hidden)) continue;
+          const e = { key, fmt: r.format, name: String(r.name), teamNo: r.number ?? null, divNo: null, standing: r.standing ?? null,
+            session: r.session ?? null, players, savedAt: Date.now(), lastUsed: cur?.lastUsed || 0, source: 'sync', hidden: false };
+          cache.set(key, e); await put(e); n++;
+        }
+        notify(); return n;
+      },
+    };
+  })();
 
   // ---------- one app instance per game ----------
   const apps = {};
@@ -591,6 +700,7 @@
       S.meta = parsed.meta;
       S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
       S.target = [0, 0];
+      parsed.teams.forEach(t => Lib.save(fmt, t)); // remember these teams for next time
       closeImp(); render();
     }
 
@@ -656,14 +766,92 @@
       d.addEventListener('toggle', () => { S.ui[d.dataset.fold] = d.open; save(); });
     });
 
+    // Fill a roster from a saved team. No side given: the first empty side, else ask before replacing Away.
+    async function loadTeam(entry, side) {
+      const empty = t => !S.teams[t].players.length;
+      let t = side;
+      if (t == null) t = empty(0) ? 0 : empty(1) ? 1 : null;
+      if (t == null) {
+        if (!(await ask(`Both ${F.label} rosters are filled. Replace ${S.teams[1].name} (Away) with ${entry.name}?`, 'Replace Away'))) return;
+        t = 1;
+      } else if (!empty(t) && side != null && !(await ask(`Replace ${S.teams[t].name} with ${entry.name}?`, 'Replace'))) return;
+      S.teams[t] = { name: entry.name, teamNo: entry.teamNo, divNo: entry.divNo, players: entry.players.map(p => ({ id: uid(), ...p })) };
+      S.matches.forEach(m => { m[t] = null; });
+      S.target[t] = 0; S.meta = null;
+      Lib.touch(entry.key);
+      render();
+      root.scrollIntoView({ behavior: 'smooth' });
+    }
+
     render();
     return {
-      get state() { return S; }, eligibility, render,
+      get state() { return S; }, eligibility, render, loadTeam,
       openImport(text) { root.scrollIntoView({ behavior: 'smooth' }); openImp(text); },
     };
   }
 
   document.querySelectorAll('.game').forEach(sec => { apps[sec.dataset.fmt] = createApp(sec); });
+
+  // ---------- saved teams sidebar ----------
+  const SYNC_URL = 'https://apa-stats-liard.vercel.app/api/teams-library';
+  const SYNC_EVERY = 6 * 3600e3;
+  const lastSync = () => { try { return +localStorage.getItem('putting-up:lastSync') || 0; } catch { return 0; } };
+  let filter = '';
+  function renderTeams() {
+    const f = norm(filter);
+    $('tlists').innerHTML = ['8', '9'].map(fmt => {
+      const all = Lib.list(fmt), list = f ? all.filter(t => norm(t.name).includes(f)) : all, oth = fmt === '8' ? '9' : '8';
+      const rows = list.map(t => {
+        const sub = [t.teamNo ? '#' + t.teamNo : '', `${t.players.length} players`, t.standing != null ? `rank ${t.standing}` : ''].filter(Boolean).join(' · ');
+        const also = Lib.has(oth, t.name) ? ` · <span class="alt">also ${FMT[oth].label}</span>` : '';
+        return `<li class="tm">
+          <button class="tmname" data-load="${esc(t.key)}" title="Load ${esc(t.name)}"><b>${esc(t.name)}</b><small>${esc(sub)}${also}</small></button>
+          <button class="tmside" data-load="${esc(t.key)}" data-side="0" title="Load as Home">H</button>
+          <button class="tmside" data-load="${esc(t.key)}" data-side="1" title="Load as Away">A</button>
+          <button class="tmrm" data-rm="${esc(t.key)}" title="Remove from this list">✕</button></li>`;
+      }).join('');
+      return `<section class="tgroup" data-fmt="${fmt}"><h3>${ballSVG(+fmt)} ${FMT[fmt].label} teams <span>${all.length}</span></h3>
+        ${rows ? `<ul>${rows}</ul>` : `<p class="hint">${all.length ? 'No team matches.' : `Load a ${FMT[fmt].label} matchup and its teams are saved here.`}</p>`}</section>`;
+    }).join('');
+  }
+  const setMsg = m => { $('tsyncMsg').textContent = m; };
+  async function sync(force) {
+    if (!force && Date.now() - lastSync() < SYNC_EVERY) return;
+    setMsg('Syncing…');
+    try {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 12000);
+      const r = await fetch(SYNC_URL, { signal: ctl.signal }); clearTimeout(timer);
+      const j = await r.json();
+      if (!j.ok) throw new Error('bad response');
+      await Lib.mergeRemote(j.teams);
+      try { localStorage.setItem('putting-up:lastSync', String(Date.now())); } catch {}
+      setMsg(`Synced ${j.teams.length} teams from APA Stats.`);
+    } catch { setMsg(force ? 'Couldn’t reach APA Stats. Using the teams saved here.' : ''); }
+  }
+  const closeDrawer = () => document.body.classList.remove('teams-open');
+  $('teams').addEventListener('click', async ev => {
+    const load = ev.target.closest('[data-load]'), rm = ev.target.closest('[data-rm]');
+    if (load) {
+      const e = Lib.get(load.dataset.load); if (!e) return;
+      closeDrawer();
+      await apps[e.fmt].loadTeam(e, load.dataset.side == null ? undefined : +load.dataset.side);
+    } else if (rm) {
+      const e = Lib.get(rm.dataset.rm);
+      if (e && await ask(`Remove ${e.name} from the ${FMT[e.fmt].label} list? You can load it again from a matchup.`, 'Remove')) Lib.remove(e.key);
+    }
+  });
+  $('tfilter').addEventListener('input', ev => { filter = ev.target.value; renderTeams(); });
+  $('tsyncBtn').addEventListener('click', () => sync(true));
+  $('teamsBtn').addEventListener('click', () => document.body.classList.add('teams-open'));
+  $('teamsClose').addEventListener('click', closeDrawer);
+  $('scrim').addEventListener('click', closeDrawer);
+  Lib.onChange(renderTeams);
+  renderTeams();
+  Lib.init().then(() => {
+    // Teams already on screen from before this list existed join it (without replacing anything).
+    for (const fmt of ['8', '9']) apps[fmt].state.teams.forEach(t => Lib.save(fmt, t, { ifMissing: true }));
+    sync(false);
+  });
   window.__PU = { apps, parseMatchup };
 })();
 </script>

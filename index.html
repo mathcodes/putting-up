@@ -54,6 +54,7 @@
 
   /* how-to box */
   .pastewrap { display: grid; gap: 0; justify-items: start; }
+  .notlisted { margin: 0 0 8px; font-weight: 600; font-size: 15px; color: var(--accent-ink); }
   .howto { position: relative; margin-top: 12px; border: 2px dashed var(--accent); border-radius: 14px;
     padding: 12px 14px 10px; background: var(--panel); width: 100%; font-size: 13.5px; }
   .howto::before { content: ""; position: absolute; top: -12px; left: 34px; border: 10px solid transparent;
@@ -255,7 +256,7 @@
   <input id="tfilter" type="search" placeholder="Find a team…" aria-label="Find a team" />
   <div id="tlists"></div>
   <div class="tsync"><button class="btn small" id="tsyncBtn" type="button">↻ Sync from APA Stats</button><p class="hint" id="tsyncMsg" style="margin:0"></p>
-  <p class="hint" style="margin:0">Teams you load are saved in this browser. Tap a team to fill the next empty roster, or H / A to choose Home or Away.</p></div>
+  <p class="hint" style="margin:0">Tap a team to load it. H / A picks Home or Away. Teams you paste are saved here.</p></div>
 </aside>
 <main>
 <section class="game" id="eight" data-fmt="8"></section>
@@ -489,7 +490,7 @@
       }
     } catch {}
     S = S || fresh();
-    S.ui = Object.assign({ howto: true, tools: true }, S.ui);
+    S.ui = Object.assign({ tools: true }, S.ui);
     const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
     root.innerHTML = `
@@ -497,18 +498,8 @@
         <div><h2>${F.label.toUpperCase()}</h2><p>Skill levels ${F.min}–${F.max} · 5 players · total can't go over the cap</p></div>
         <span class="fmtpill">${F.label} night</span></div>
       <div class="pastewrap">
-        <button class="btn paste" data-act="import">📋 Paste ${F.label} matchup</button>
-        <details class="howto" data-fold="howto">
-          <summary class="fold"><span class="chev" aria-hidden="true"></span><span class="lbl">Where to copy tonight's ${F.label} matchup from</span><span class="tog"></span></summary>
-          <p class="up">▲ Copy it, then tap the Paste button above.</p>
-          <ol>
-            <li>Go to <a href="https://league.poolplayers.com/" target="_blank" rel="noopener">league.poolplayers.com</a> and sign in with your APA account.</li>
-            <li>Choose your <b>${F.label}</b> team, then open tonight's match from the team's schedule.</li>
-            <li>On the matchup page (it starts with <b>Matchup:</b>, the date and both team names), select from the date down through the last <b>Away Team</b> player and copy. Select All also works.</li>
-            <li>Tap <b>📋 Paste ${F.label} matchup</b>, paste, check the preview, then tap <b>Load</b>.</li>
-          </ol>
-          <p class="tiny">It reads both rosters with skill levels and member numbers, season stats, plus date, time, venue and div reps. A single team's roster table works too.</p>
-        </details>
+        <p class="notlisted">Team not listed? Paste its info here <span aria-hidden="true">↓</span></p>
+        <button class="btn paste" data-act="import">📋 Paste ${F.label} team here</button>
       </div>
       <details class="tools" data-fold="tools">
         <summary class="fold"><span class="chev" aria-hidden="true"></span><span class="lbl">⚙ ${F.label} settings</span><span class="sumline" data-r="sumline"></span><span class="tog"></span></summary>
@@ -531,8 +522,8 @@
       </div>
       <div class="rosters" data-r="rosters"></div>
       <div class="modal" data-r="imp" role="dialog" aria-modal="true"><div class="box wide">
-        <h4>${ballSVG(+fmt)} Paste ${F.label} matchup</h4>
-        <p class="hint" style="margin-top:0">Paste the matchup page from league.poolplayers.com.</p>
+        <h4>${ballSVG(+fmt)} Paste ${F.label} team</h4>
+        <p class="hint" style="margin-top:0">Copy the team's page (or tonight's matchup) from <a href="https://league.poolplayers.com/" target="_blank" rel="noopener">league.poolplayers.com</a>, then paste it here.</p>
         <textarea class="impText" placeholder="Matchup:&#10;Nov&#10;18&#10;Up To No Good (93704)&#10;…"></textarea>
         <div data-r="pv"></div>
         <div class="row">
@@ -656,7 +647,7 @@
               <span class="sl">${p.sl}</span>${ok ? nm : nm.replace('</span>', `<small class="rt">too high · ${r.floor}>${S.cap}</small></span>`)}<span class="tag">${tag}</span></button>
             <button class="sit" data-sit="${t}:${p.id}" title="Mark not here tonight">💤</button>
             <button class="del" data-del="${t}:${p.id}" title="Remove from roster">🗑</button></div>`;
-        }).join('') || `<p class="hint">No players yet — paste the matchup above or add players below.</p>`;
+        }).join('') || `<p class="hint">No players yet — paste the team above or add players below.</p>`;
         return `<div class="panel roster" style="--c:${colors[t]}">
           <h3><span style="color:${colors[t]}">${esc(S.teams[t].name)}</span><span>${S.teams[t].players.length}/8</span></h3>
           <div class="plist">${rows}</div>
@@ -832,7 +823,7 @@
           <button class="tmrm" data-rm="${esc(t.key)}" title="Remove from this list">✕</button></li>`;
       }).join('');
       return `<section class="tgroup" data-fmt="${fmt}"><h3>${ballSVG(+fmt)} ${FMT[fmt].label} teams <span>${all.length}</span></h3>
-        ${rows ? `<ul>${rows}</ul>` : `<p class="hint">${all.length ? 'No team matches.' : `Load a ${FMT[fmt].label} matchup and its teams are saved here.`}</p>`}</section>`;
+        ${rows ? `<ul>${rows}</ul>` : `<p class="hint">${all.length ? 'No team matches.' : `Team not here? Paste it with the button and it's saved here.`}</p>`}</section>`;
     }).join('');
   }
   const setMsg = m => { $('tsyncMsg').textContent = m; };

@@ -9,7 +9,7 @@ The page has two independent copies of the tool, each with its own rosters, line
 - **8-Ball** on top (SL 2–7)
 - **9-Ball** below (SL 1–9)
 
-Each section has a ball banner, its own **📋 Paste matchup** button, and instructions for copying the matchup from league.poolplayers.com. If you paste a 9-ball matchup into the 8-ball section (or the other way round), it warns you and offers to load it into the right section.
+Each section has a ball banner and its own **📋 Paste 8-Ball team here** / **📋 Paste 9-Ball team here** button, with a one-line note: team not listed? paste its info here. If you paste a 9-ball matchup into the 8-ball section (or the other way round), it warns you and offers to load it into the right section.
 
 A **🔗 Links** section at the bottom collects league bylaws, APA/BCA rules, instruction (Dr. Dave) and community resources.
 

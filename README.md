@@ -22,7 +22,7 @@ A **🔗 Links** section at the bottom collects league bylaws, APA/BCA rules, in
 - "Not here" toggle (💤) for absent players; forfeit warning if you run short.
 - Alternating "who puts up first" indicator per match (⇄ to swap).
 - Cap is editable per section.
-- "New night" clears matches but keeps rosters. Everything saves in the browser (localStorage for tonight's lineup, IndexedDB for saved teams).
+- The app starts with no teams assigned. "New night" clears that section (8-Ball or 9-Ball): teams, lineup and match info. Saved teams stay in the Teams list. Tonight's lineup is kept for the browser tab (a reload keeps it, a new visit starts empty); saved teams persist in IndexedDB.
 
 ## Saved teams
 A **Teams** sidebar (a 👥 Teams drawer on phones) keeps every team you've loaded, split into an **8-Ball** list and a **9-Ball** list. A team shows up under whichever format's stats you loaded, and under both once you've loaded both.

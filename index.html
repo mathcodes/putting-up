@@ -482,16 +482,11 @@
       target: [0, 0], meta: null,
     });
     let S;
-    try {
-      S = JSON.parse(localStorage.getItem(KEY));
-      if (!S) { // migrate the single-format v1 save into the matching section
-        const v1 = JSON.parse(localStorage.getItem('putting-up:v1'));
-        if (v1 && (v1.format || '9') === fmt) { delete v1.format; S = v1; }
-      }
-    } catch {}
+    // Tonight's lineup lives in this tab's session only: a new visit starts with no teams, a reload keeps them.
+    try { S = JSON.parse(sessionStorage.getItem(KEY)); } catch {}
     S = S || fresh();
     S.ui = Object.assign({ tools: true }, S.ui);
-    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+    const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
     root.innerHTML = `
       <div class="banner">${ballSVG(+fmt)}
@@ -718,10 +713,9 @@
         else if (act === 'metaX') { S.meta = null; render(); }
         else if (act === 'swap') { S.firstUp = 1 - S.firstUp; render(); }
         else if (act === 'reset') {
-          if (!(await ask(`Start a new ${F.label} night? Clears the ${F.label} matches and "not here" flags; rosters are kept.`, 'New night'))) return;
-          S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
-          S.teams.forEach(tm => tm.players.forEach(p => delete p.out));
-          S.target = [0, 0]; render();
+          if (!(await ask(`Start a new ${F.label} night? This clears the ${F.label} teams, lineup and match info. Saved teams stay in the Teams list.`, 'New night'))) return;
+          const f = fresh(); S.teams = f.teams; S.matches = Array.from({ length: S.nMatches }, () => [null, null]);
+          S.target = [0, 0]; S.meta = null; S.firstUp = 0; render();
         }
         return;
       }
@@ -863,6 +857,14 @@
   Lib.init().then(() => {
     // Teams already on screen from before this list existed join it (without replacing anything).
     for (const fmt of ['8', '9']) apps[fmt].state.teams.forEach(t => Lib.save(fmt, t, { ifMissing: true }));
+    // Lineups saved by older versions: keep their teams in the library, then drop the old copies so the app starts empty.
+    try {
+      for (const k of ['putting-up:v2:8', 'putting-up:v2:9', 'putting-up:v1']) {
+        const o = JSON.parse(localStorage.getItem(k) || 'null');
+        if (o?.teams) o.teams.forEach(t => Lib.save(k.endsWith(':8') ? '8' : k.endsWith(':9') ? '9' : (o.format || '9'), t, { ifMissing: true }));
+        localStorage.removeItem(k);
+      }
+    } catch {}
     sync(false);
   });
   window.__PU = { apps, parseMatchup };

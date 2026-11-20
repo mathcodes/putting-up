@@ -117,3 +117,13 @@ flowchart LR
 ```
 
 Download: [PDF](docs/architecture.pdf) · [PNG](docs/architecture.png) · source: `docs/architecture.mmd`
+
+## One-click add from APA (bookmarklet)
+
+APA's team pages need a sign-in, so Putting Up can't fetch them itself. The **Send to Putting Up** bookmarklet does it from your own signed-in browser:
+
+1. Open the **Teams** list and expand **One-click add from APA**. Drag **Send to Putting Up** to your bookmarks bar (on a phone, tap **Copy bookmarklet** and save it as a bookmark's address).
+2. Sign in at league.poolplayers.com and open a team page, or tonight's matchup.
+3. Tap the bookmark. Putting Up opens, reads the roster with the same parser as the paste box, and saves the team(s) to your Teams list.
+
+The page text travels in the link to this page only; nothing is sent to any server.

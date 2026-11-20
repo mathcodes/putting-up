@@ -54,6 +54,10 @@
 
   /* how-to box */
   .pastewrap { display: grid; gap: 0; justify-items: start; }
+  details.bm { margin-top: 8px; font-size: 13px; }
+  details.bm summary { cursor: pointer; font-weight: 600; }
+  details.bm ol { margin: 6px 0 0; padding-left: 18px; }
+  details.bm li { margin-bottom: 6px; }
   .notlisted { margin: 0 0 8px; font-weight: 600; font-size: 15px; color: var(--accent-ink); }
   .howto { position: relative; margin-top: 12px; border: 2px dashed var(--accent); border-radius: 14px;
     padding: 12px 14px 10px; background: var(--panel); width: 100%; font-size: 13.5px; }
@@ -256,7 +260,11 @@
   <input id="tfilter" type="search" placeholder="Find a team…" aria-label="Find a team" />
   <div id="tlists"></div>
   <div class="tsync"><button class="btn small" id="tsyncBtn" type="button">↻ Sync from APA Stats</button><p class="hint" id="tsyncMsg" style="margin:0"></p>
-  <p class="hint" style="margin:0">Tap a team to load it. H / A picks Home or Away. Teams you paste are saved here.</p></div>
+  <p class="hint" style="margin:0">Tap a team to load it. H / A picks Home or Away. Teams you paste are saved here.</p>
+  <details class="bm"><summary>➕ One-click add from APA</summary>
+    <ol class="hint"><li>Drag this to your bookmarks bar: <a id="bmLink" class="btn small" href="#">Send to Putting Up</a><br>On a phone, tap <button class="btn small" id="bmCopy" type="button">Copy bookmarklet</button> and save it as a bookmark's address.</li>
+    <li>Sign in at league.poolplayers.com and open a team page (or tonight's matchup).</li>
+    <li>Tap the bookmark. The team opens here and is saved to your Teams list.</li></ol></details></div>
 </aside>
 <main>
 <section class="game" id="eight" data-fmt="8"></section>
@@ -866,7 +874,30 @@
       }
     } catch {}
     sync(false);
+    importFromLink();
   });
+
+  // ---------- one-click add: the "Send to Putting Up" bookmarklet ----------
+  // Runs on an APA team/matchup page in the user's own signed-in browser, grabs the page text and opens this app with it in the link.
+  const BM = "javascript:(function(){var t=(document.body.innerText||'').slice(0,60000),b=btoa(unescape(encodeURIComponent(t))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''),u='" + location.origin + location.pathname + "#import='+b;window.open(u,'_blank')||(location.href=u)})()";
+  $('bmLink').setAttribute('href', BM);
+  $('bmLink').addEventListener('click', e => e.preventDefault());
+  $('bmCopy').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(BM); await tell('Copied. Create a new bookmark, then paste this as its address (URL).'); }
+    catch { await tell('Copy was blocked. Drag the "Send to Putting Up" button to your bookmarks bar instead.'); }
+  });
+  async function importFromLink() {
+    const m = location.hash.match(/^#import=([\w-]+)/); if (!m) return;
+    history.replaceState(null, '', location.pathname + location.search);
+    let text;
+    try { text = decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))); }
+    catch { return tell("That link couldn't be read. Open the APA page and tap the bookmark again."); }
+    const p = parseMatchup(text);
+    if (!p.teams.length) return tell("Couldn't find a roster on that page. Open a team page (or tonight's matchup) and tap the bookmark again.");
+    if (!p.format) { apps['8'].openImport(text); return; } // can't tell 8 from 9: show the preview, which can switch sections
+    p.teams.forEach(t => Lib.save(p.format, t));
+    await tell(`Saved to your ${FMT[p.format].label} Teams list: ${p.teams.map(t => `${t.name} (${t.players.length} players)`).join(', ')}. Tap a team to load it.`);
+  }
   window.__PU = { apps, parseMatchup };
 })();
 </script>
